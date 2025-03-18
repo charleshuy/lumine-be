@@ -1,6 +1,8 @@
-﻿using Infrastructure.Persistence;
+﻿using Application.Interfaces.UOW;
+using Application.Paggings;
+using Infrastructure.PagingItems;
+using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Services;
 using System.Linq.Expressions;
 
 namespace Infrastructure.UOW
@@ -43,6 +45,11 @@ namespace Infrastructure.UOW
         public async Task<T?> GetByIdAsync(object id)
         {
             return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<PaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize)
+        {
+            return await query.GetPaginatedList(index, pageSize);
         }
 
         public void Insert(T obj)

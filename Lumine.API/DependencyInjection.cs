@@ -1,5 +1,6 @@
-﻿using Infrastructure;
-using Infrastructure.Identities;
+﻿using Application;
+using Infrastructure;
+using Infrastructure.Identity;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 
@@ -7,12 +8,22 @@ namespace Lumine.API
 {
     public static class DependencyInjection
     {
-        public static void AddServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddInfrastructureLayer(configuration);
+
+
+            // Register Layer
+            services
+                .AddApplicationLayer()
+                .AddInfrastructureLayer(configuration)
+                .AddCustomAuthentication(configuration);
+
+            // Register Identity
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            return services;
         }
     }
 }

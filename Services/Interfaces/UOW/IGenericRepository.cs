@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using Application.Paggings;
+using System.Linq.Expressions;
 
-namespace Services
+namespace Application.Interfaces.UOW
 {
     public interface IGenericRepository<T> where T : class
     {
@@ -28,5 +29,6 @@ namespace Services
 
         //another
         T? Find(Expression<Func<T, bool>> predicate);
+        Task<PaginatedList<T>> GetPagging(IQueryable<T> query, int index, int pageSize);
     }
 }

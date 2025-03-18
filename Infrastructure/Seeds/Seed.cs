@@ -1,8 +1,8 @@
-﻿using Infrastructure.Identities;
-using Infrastructure.Persistence;
+﻿using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Domain.Entities;
+using Infrastructure.Identity;
 
 namespace Infrastructure.Seeds
 {

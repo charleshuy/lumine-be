@@ -23,8 +23,17 @@ public class Program
             });
         });
 
-        // Add custom services (if any)
-        builder.Services.AddServices(builder.Configuration);
+        // Add custom services
+        builder.Services.AddConfig(builder.Configuration);
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll",
+                policy => policy.AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader());
+        });
+
 
         var app = builder.Build();
 
@@ -45,6 +54,7 @@ public class Program
             });
         }
 
+        app.UseCors("AllowAll");
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
