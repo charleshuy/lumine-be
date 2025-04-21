@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        // DbSets for domain entities
+        // DbSets
         public DbSet<Service> Services { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; } = null!;
         public DbSet<Booking> Bookings { get; set; } = null!;
@@ -19,9 +19,9 @@ namespace Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // Ensures Identity tables are configured
+            base.OnModelCreating(modelBuilder);
 
-            // Rename Identity tables if needed
+            // Rename Identity tables
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
             modelBuilder.Entity<ApplicationRole>().ToTable("AspNetRoles");
             modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("AspNetUserRoles");
@@ -30,14 +30,14 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AspNetRoleClaims");
             modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AspNetUserTokens");
 
-            // Booking relationships
+            // Booking
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Service)
                 .WithMany(s => s.Bookings)
                 .HasForeignKey(b => b.ServiceID);
 
             modelBuilder.Entity<Booking>()
-                .HasOne<ApplicationUser>()  // ✅ Correct FK to Identity User
+                .HasOne(b => b.Customer)
                 .WithMany()
                 .HasForeignKey(b => b.CustomerID)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -55,10 +55,9 @@ namespace Infrastructure.Persistence
                 .Property(b => b.Deposit)
                 .HasColumnType("decimal(18,2)");
 
-
-            // Review relationships
+            // Review
             modelBuilder.Entity<Review>()
-                .HasOne<ApplicationUser>()  // ✅ Correct FK to Identity User
+                .HasOne(r => r.Customer)
                 .WithMany()
                 .HasForeignKey(r => r.CustomerID)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -68,9 +67,9 @@ namespace Infrastructure.Persistence
                 .WithMany(s => s.Reviews)
                 .HasForeignKey(r => r.ServiceID);
 
-            // Order relationships
+            // Order
             modelBuilder.Entity<Order>()
-                .HasOne<ApplicationUser>()  // ✅ Correct FK to Identity User
+                .HasOne(o => o.Customer)
                 .WithMany()
                 .HasForeignKey(o => o.CustomerID)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -84,11 +83,16 @@ namespace Infrastructure.Persistence
                 .Property(o => o.TotalPrice)
                 .HasColumnType("decimal(18,2)");
 
+            // Service
+            modelBuilder.Entity<Service>()
+                .HasOne(s => s.Artist)
+                .WithMany()
+                .HasForeignKey(s => s.ArtistID)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Service>()
                 .Property(s => s.Price)
                 .HasColumnType("decimal(18,2)");
         }
-
     }
 }

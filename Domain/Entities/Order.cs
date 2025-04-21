@@ -1,5 +1,4 @@
-﻿
-using Domain.Base;
+﻿using Domain.Base;
 
 namespace Domain.Entities
 {
@@ -9,11 +8,11 @@ namespace Domain.Entities
         public decimal TotalPrice { get; set; }
         public OrderStatus OrderStatus { get; set; }
 
-        // Foreign Keys
         public Guid PaymentID { get; set; }
-        public Payment? Payment { get; set; }  // Navigation Property
+        public Payment? Payment { get; set; }
 
         public Guid CustomerID { get; set; }
+        public ApplicationUser? Customer { get; set; }  // Navigation Property
     }
 
     public enum OrderStatus

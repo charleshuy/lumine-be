@@ -8,14 +8,14 @@ namespace Domain.Entities
         public string Description { get; set; } = string.Empty;
         public TimeSpan Duration { get; set; }  // TIME in SQL maps to TimeSpan in C#
         public decimal Price { get; set; }
-        public ServiceStatus Status { get; set; }  // Enum for Status
+        public ServiceStatus Status { get; set; }
 
         // Foreign Key
         public Guid ArtistID { get; set; }
+        public ApplicationUser? Artist { get; set; }  // Navigation Property
 
-        // Navigation Property for Reviews
+        // Navigation Properties
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
-
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 

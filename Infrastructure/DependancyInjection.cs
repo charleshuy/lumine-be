@@ -1,7 +1,5 @@
-﻿using Application.Interfaces.Auth;
-using Application.Interfaces.UOW;
+﻿using Application.Interfaces.UOW;
 using Infrastructure.Persistence;
-using Infrastructure.Services.Auth;
 using Infrastructure.UOW;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +18,7 @@ namespace Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-            services.AddScoped<IFirebaseAuthService, FirebaseAuthService>();
+            
 
             return services;
         }

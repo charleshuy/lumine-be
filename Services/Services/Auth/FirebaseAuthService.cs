@@ -1,7 +1,7 @@
 ﻿using Application.Interfaces.Auth;
 using Domain.Base;
+using Domain.Entities;
 using FirebaseAdmin.Auth;
-using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Infrastructure.Services.Auth
+namespace Application.Services.Auth
 {
     public class FirebaseAuthService : IFirebaseAuthService
     {

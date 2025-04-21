@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Domain.Entities;
-using Infrastructure.Identity;
 
 namespace Infrastructure.Seeds
 {

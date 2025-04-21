@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Lumine.API/firebase-adminsdk.json
+/Lumine.API/appsettings.json

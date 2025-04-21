@@ -1,4 +1,5 @@
 ﻿using Application;
+using Domain.Entities;
 using Infrastructure;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;

@@ -7,12 +7,14 @@ namespace Domain.Entities
         public string Comment { get; set; } = string.Empty;
         public int Rating { get; set; }
         public DateTime CreateDate { get; set; }
-        public ReviewStatus Status { get; set; }  // Enum for Status
+        public ReviewStatus Status { get; set; }
 
-        // Foreign Key
+        // Foreign Keys
         public Guid CustomerID { get; set; }
+        public ApplicationUser? Customer { get; set; }  // Navigation Property
+
         public Guid ServiceID { get; set; }
-        public Service? Service { get; set; }  // Navigation Property
+        public Service? Service { get; set; }
     }
 
     public enum ReviewStatus
