@@ -19,6 +19,7 @@ namespace Infrastructure.UOW
         }
 
         public IQueryable<T> Entities => _context.Set<T>();
+        public IQueryable<T> NoTrackingEntities => _context.Set<T>().AsNoTracking();
 
         public void Delete(object entity)
         {
