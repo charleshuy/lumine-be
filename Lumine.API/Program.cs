@@ -13,15 +13,6 @@ public class Program
 
         // ✅ Add Swagger
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Lumine API",
-                Version = "v1",
-                Description = "API documentation for Lumine",
-            });
-        });
 
         // Add custom services
         builder.Services.AddConfig(builder.Configuration);

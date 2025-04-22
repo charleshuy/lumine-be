@@ -7,6 +7,7 @@ namespace Application.Interfaces.UOW
     {
         //queryable
         IQueryable<T> Entities { get; }
+        IQueryable<T> NoTrackingEntities { get; }
 
         //void
         T? GetById(object id);
