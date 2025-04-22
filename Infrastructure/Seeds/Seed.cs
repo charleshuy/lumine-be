@@ -15,7 +15,7 @@ namespace Infrastructure.Seeds
 
             await SeedRoles(roleManager);
             var adminUser = await SeedAdminUser(userManager);
-            await SeedServices(context);
+            await SeedServices(context, adminUser);
             await SeedPayments(context);
             await SeedBookings(context, adminUser);
             await SeedReviews(context, adminUser);
@@ -46,32 +46,58 @@ namespace Infrastructure.Seeds
                     UserName = adminEmail,
                     Email = adminEmail,
                     FirstName = "Admin",
-                    LastName = "User",
-                    //DateOfBirth = new DateTime(1990, 1, 1)
+                    LastName = "User"
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin@123");
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
-                }
+                if (!result.Succeeded)
+                    throw new Exception("Failed to create admin user");
+
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+
+                // 🚨 Fetch the user again to get the DB-generated ID (ensures tracking is updated)
+                adminUser = await userManager.FindByEmailAsync(adminEmail);
             }
 
             return adminUser;
         }
 
-        private static async Task SeedServices(ApplicationDbContext context)
+
+        private static async Task SeedServices(ApplicationDbContext context, ApplicationUser adminUser)
         {
             if (!context.Services.Any())
             {
                 context.Services.AddRange(
-                    new Service { ServiceName = "Haircut", Price = 20.00m },
-                    new Service { ServiceName = "Massage", Price = 50.00m },
-                    new Service { ServiceName = "Manicure", Price = 30.00m }
+                    new Service
+                    {
+                        ServiceName = "Haircut",
+                        Price = 20.00m,
+                        ArtistID = adminUser.Id,
+                        Duration = TimeSpan.FromMinutes(30),
+                        Status = ServiceStatus.Available
+                    },
+                    new Service
+                    {
+                        ServiceName = "Massage",
+                        Price = 50.00m,
+                        ArtistID = adminUser.Id,
+                        Duration = TimeSpan.FromMinutes(60),
+                        Status = ServiceStatus.Available
+                    },
+                    new Service
+                    {
+                        ServiceName = "Manicure",
+                        Price = 30.00m,
+                        ArtistID = adminUser.Id,
+                        Duration = TimeSpan.FromMinutes(45),
+                        Status = ServiceStatus.Available
+                    }
                 );
+
                 await context.SaveChangesAsync();
             }
         }
+
 
         private static async Task SeedPayments(ApplicationDbContext context)
         {
