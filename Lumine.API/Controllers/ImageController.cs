@@ -44,7 +44,7 @@ namespace Lumine.API.Controllers
         /// <param name="publicId">The public ID of the image.</param>
         /// <returns>True if deletion was successful.</returns>
         [HttpDelete("delete")]
-        public async Task<IActionResult> Delete([FromQuery] string publicId)
+        public async Task<IActionResult> Delete([FromQuery] string? publicId)
         {
             if (string.IsNullOrWhiteSpace(publicId))
                 return BadRequest("Public ID is required.");

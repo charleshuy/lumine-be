@@ -5,23 +5,93 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Lumine.API.Controllers
 {
+    /// <summary>  
+    /// Controller for managing user-related operations.  
+    /// </summary>  
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
 
+        /// <summary>  
+        /// Initializes a new instance of the <see cref="UserController"/> class.  
+        /// </summary>  
+        /// <param name="userService">The user service to handle user operations.</param>  
         public UserController(IUserService userService)
         {
             _userService = userService;
         }
 
-        // GET api/user
+        /// <summary>  
+        /// Retrieves a paginated list of users based on the provided filters.  
+        /// </summary>  
+        /// <param name="pageIndex">The index of the page to retrieve.</param>  
+        /// <param name="pageSize">The number of items per page.</param>  
+        /// <param name="username">Optional filter for username.</param>  
+        /// <param name="email">Optional filter for email.</param>  
+        /// <param name="phoneNumber">Optional filter for phone number.</param>  
+        /// <returns>A paginated list of users.</returns>  
         [HttpGet]
-        public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetUsers([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetUsers(
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? username = null,
+            [FromQuery] string? email = null,
+            [FromQuery] string? phoneNumber = null)
         {
-            var result = await _userService.GetPaginatedUsers(pageIndex, pageSize);
+            if (pageIndex <= 0 || pageSize <= 0)
+            {
+                return BadRequest("pageNumber and pageSize must be greater than 0.");
+            }
+            var result = await _userService.GetPaginatedUsers(pageIndex, pageSize, username, email, phoneNumber);
             return Ok(result);
         }
+
+        /// <summary>  
+        /// Retrieves a user by their unique identifier.  
+        /// </summary>  
+        /// <param name="id">The unique identifier of the user.</param>  
+        /// <returns>The user details if found; otherwise, a NotFound result.</returns>  
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<ResponseUserDTO>> GetUserById(Guid id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound(new { Message = $"User with ID {id} was not found." });
+
+            return Ok(user);
+        }
+        /// <summary>  
+        /// Updates a user's information by their ID.  
+        /// </summary>  
+        /// <param name="id">The ID of the user to update.</param>  
+        /// <param name="dto">The updated user data.</param>  
+        /// <returns>NoContent if successful; otherwise, NotFound or BadRequest.</returns>  
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDTO dto)
+        {
+            var updated = await _userService.UpdateUserAsync(id, dto);
+            if (!updated)
+                return NotFound(new { Message = $"User with ID {id} was not found." });
+
+            return NoContent();
+        }
+
+        /// <summary>  
+        /// Soft deletes a user by their ID.  
+        /// </summary>  
+        /// <param name="id">The ID of the user to delete.</param>  
+        /// <returns>NoContent if successful; otherwise, NotFound.</returns>  
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var deleted = await _userService.DeleteUserAsync(id);
+            if (!deleted)
+                return NotFound(new { Message = $"User with ID {id} was not found or already deleted." });
+
+            return NoContent();
+        }
+
     }
 }

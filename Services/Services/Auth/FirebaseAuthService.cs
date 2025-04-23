@@ -24,62 +24,54 @@ namespace Application.Services.Auth
 
         public async Task<string> SignInWithFirebaseAsync(string idToken, string? fcmToken)
         {
-            try
+            // ✅ Verify Firebase Token
+            FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
+            string firebaseUserId = decodedToken.Uid;
+            string? email = decodedToken.Claims.ContainsKey("email") ? decodedToken.Claims["email"].ToString() : null;
+            string? firstName = decodedToken.Claims.ContainsKey("given_name") ? decodedToken.Claims["given_name"].ToString() : "";
+            string? lastName = decodedToken.Claims.ContainsKey("family_name") ? decodedToken.Claims["family_name"].ToString() : "";
+            string? username = decodedToken.Claims.ContainsKey("nickname") ? decodedToken.Claims["nickname"].ToString() : email?.Split('@')[0];
+
+            if (string.IsNullOrEmpty(email))
             {
-                // ✅ Verify Firebase Token
-                FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
-                string firebaseUserId = decodedToken.Uid;
-                string? email = decodedToken.Claims.ContainsKey("email") ? decodedToken.Claims["email"].ToString() : null;
-                string? firstName = decodedToken.Claims.ContainsKey("given_name") ? decodedToken.Claims["given_name"].ToString() : "";
-                string? lastName = decodedToken.Claims.ContainsKey("family_name") ? decodedToken.Claims["family_name"].ToString() : "";
-                string? username = decodedToken.Claims.ContainsKey("nickname") ? decodedToken.Claims["nickname"].ToString() : email?.Split('@')[0];
-
-                if (string.IsNullOrEmpty(email))
-                {
-                    throw new Exception("Firebase token does not contain an email.");
-                }
-
-                // ✅ Check if the user exists
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user == null)
-                {
-                    // ✅ Create a new user
-                    user = new ApplicationUser
-                    {
-                        UserName = username,
-                        Email = email,
-                        FirstName = firstName ?? "",
-                        LastName = lastName ?? "",
-                        FcmToken = fcmToken // ✅ Store FCM Token
-                    };
-
-                    var result = await _userManager.CreateAsync(user);
-                    if (!result.Succeeded)
-                    {
-                        throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                    }
-
-                    // ✅ Assign default role if needed
-                    await _userManager.AddToRoleAsync(user, "User");
-                }
-                else
-                {
-                    // ✅ Update FCM token if user already exists
-                    if (!string.IsNullOrEmpty(fcmToken))
-                    {
-                        user.FcmToken = fcmToken;
-                        await _userManager.UpdateAsync(user);
-                    }
-                }
-
-                // ✅ Generate JWT Token with roles
-                return await GenerateJwtToken(user, _userManager);
+                throw new BaseException.BadRequestException("missing_email", "Firebase token does not contain an email.");
             }
-            catch (FirebaseAuthException)
+
+            // ✅ Check if the user exists
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
             {
-                throw new Exception("Invalid Firebase token.");
+                // ✅ Create a new user
+                user = new ApplicationUser
+                {
+                    UserName = username,
+                    Email = email,
+                    FirstName = firstName ?? "",
+                    LastName = lastName ?? "",
+                    FcmToken = fcmToken
+                };
+
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new BaseException.BadRequestException("user_creation_failed",
+                        $"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+
+                await _userManager.AddToRoleAsync(user, "User");
             }
+            else
+            {
+                if (!string.IsNullOrEmpty(fcmToken))
+                {
+                    user.FcmToken = fcmToken;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+
+            return await GenerateJwtToken(user, _userManager);
         }
+
 
         private async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager)
         {

@@ -1,5 +1,6 @@
 ﻿using Application;
 using Domain.Entities;
+using FirebaseAdmin.Auth;
 using Infrastructure;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;
@@ -13,7 +14,7 @@ namespace Lumine.API
     {
         public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration configuration)
         {
-
+            services.AddHttpContextAccessor();
 
             // Register Layer
             services
@@ -54,7 +55,7 @@ namespace Lumine.API
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Enter 'Bearer {your Firebase ID token}'"
+                    Description = "Enter '{your Firebase ID token}'"
                 });
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
