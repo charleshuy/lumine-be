@@ -50,6 +50,7 @@ namespace Application
             services.AddScoped<IFirebaseAuthService, FirebaseAuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IRoleService, RoleService>();
             return services;
         }
 
