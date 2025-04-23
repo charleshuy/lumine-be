@@ -22,6 +22,8 @@ namespace Domain.Base
         public string? LastUpdatedBy { get; set; }
         [Display(Name = "Deleted By")]
         public string? DeletedBy { get; set; }
+        [Display(Name = "IsDeleted")]
+        public bool IsDeleted { get; set; } = false;
         [Display(Name = "Created Time")]
         public DateTimeOffset CreatedTime { get; set; }
         [Display(Name = "Last Updated Time")]
