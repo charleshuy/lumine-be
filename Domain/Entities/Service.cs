@@ -11,10 +11,14 @@ namespace Domain.Entities
         public ServiceStatus Status { get; set; }
 
         // Foreign Key
-        public Guid ArtistID { get; set; }
-        public ApplicationUser? Artist { get; set; }  // Navigation Property
+        public Guid? ArtistID { get; set; }
+        public Guid? ServiceTypeID { get; set; }
+
+
 
         // Navigation Properties
+        public ServiceType? ServiceType { get; set; }
+        public ApplicationUser? Artist { get; set; }
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }

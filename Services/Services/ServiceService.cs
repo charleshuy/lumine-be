@@ -39,7 +39,7 @@ namespace Application.Services
 
             if (price.HasValue)
             {
-                query = query.Where(s => s.Price == price.Value);
+                query = query.Where(s => s.Price >= price.Value);
             }
 
             if (status.HasValue)

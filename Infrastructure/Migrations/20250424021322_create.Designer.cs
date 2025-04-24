@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250421235145_create")]
+    [Migration("20250424021322_create")]
     partial class create
     {
         /// <inheritdoc />
@@ -66,6 +66,12 @@ namespace Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -79,6 +85,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -107,11 +119,17 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfilePicture")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -156,6 +174,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<decimal>("Deposit")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -207,6 +228,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DeletedTime")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -251,6 +275,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedTime")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
@@ -297,6 +324,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DeletedTime")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -327,7 +357,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ArtistID")
+                    b.Property<Guid?>("ArtistID")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CreatedBy")
@@ -349,6 +379,9 @@ namespace Infrastructure.Migrations
                     b.Property<TimeSpan>("Duration")
                         .HasColumnType("time");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -362,6 +395,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ServiceTypeID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -369,7 +405,48 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ArtistID");
 
+                    b.HasIndex("ServiceTypeID");
+
                     b.ToTable("Services");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DeletedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("LastUpdatedTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServiceTypes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -545,10 +622,16 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "Artist")
                         .WithMany()
                         .HasForeignKey("ArtistID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.ServiceType", "ServiceType")
+                        .WithMany("Services")
+                        .HasForeignKey("ServiceTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Artist");
+
+                    b.Navigation("ServiceType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -614,6 +697,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceType", b =>
+                {
+                    b.Navigation("Services");
                 });
 #pragma warning restore 612, 618
         }

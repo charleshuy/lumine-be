@@ -33,6 +33,12 @@ namespace Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FcmToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -63,6 +69,7 @@ namespace Infrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -70,6 +77,26 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Payments", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceTypes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -179,35 +206,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Services",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ServiceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ArtistID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Services", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Services_AspNetUsers_ArtistID",
-                        column: x => x.ArtistID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
@@ -220,6 +218,7 @@ namespace Infrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -242,6 +241,43 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Services",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ArtistID = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ServiceTypeID = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Services", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Services_AspNetUsers_ArtistID",
+                        column: x => x.ArtistID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Services_ServiceTypes_ServiceTypeID",
+                        column: x => x.ServiceTypeID,
+                        principalTable: "ServiceTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bookings",
                 columns: table => new
                 {
@@ -256,6 +292,7 @@ namespace Infrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -297,6 +334,7 @@ namespace Infrastructure.Migrations
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeletedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     LastUpdatedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     DeletedTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -396,6 +434,11 @@ namespace Infrastructure.Migrations
                 name: "IX_Services_ArtistID",
                 table: "Services",
                 column: "ArtistID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Services_ServiceTypeID",
+                table: "Services",
+                column: "ServiceTypeID");
         }
 
         /// <inheritdoc />
@@ -436,6 +479,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "ServiceTypes");
         }
     }
 }

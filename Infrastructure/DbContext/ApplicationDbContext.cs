@@ -12,6 +12,7 @@ namespace Infrastructure.Persistence
 
         // DbSets
         public DbSet<Service> Services { get; set; } = null!;
+        public DbSet<ServiceType> ServiceTypes { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; } = null!;
         public DbSet<Booking> Bookings { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
@@ -93,6 +94,13 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<Service>()
                 .Property(s => s.Price)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Service>()
+                .HasOne(s => s.ServiceType)
+                .WithMany(st => st.Services)
+                .HasForeignKey(s => s.ServiceTypeID)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
         }
     }
 }

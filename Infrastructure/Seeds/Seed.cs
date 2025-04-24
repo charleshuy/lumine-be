@@ -62,11 +62,35 @@ namespace Infrastructure.Seeds
             return adminUser;
         }
 
+        private static async Task<List<ServiceType>> SeedServiceTypes(ApplicationDbContext context)
+        {
+            if (!context.ServiceTypes.Any())
+            {
+                var types = new List<ServiceType>
+        {
+            new ServiceType { Name = "Hair", Description = "Hair-related services" },
+            new ServiceType { Name = "Spa", Description = "Relaxation and massage services" },
+            new ServiceType { Name = "Nails", Description = "Manicure and pedicure services" }
+        };
+
+                context.ServiceTypes.AddRange(types);
+                await context.SaveChangesAsync();
+            }
+
+            return context.ServiceTypes.ToList(); // Ensure we return the tracked entities
+        }
+
 
         private static async Task SeedServices(ApplicationDbContext context, ApplicationUser adminUser)
         {
             if (!context.Services.Any())
             {
+                var serviceTypes = await SeedServiceTypes(context);
+
+                var hairType = serviceTypes.First(st => st.Name == "Hair");
+                var spaType = serviceTypes.First(st => st.Name == "Spa");
+                var nailType = serviceTypes.First(st => st.Name == "Nails");
+
                 context.Services.AddRange(
                     new Service
                     {
@@ -74,7 +98,8 @@ namespace Infrastructure.Seeds
                         Price = 20.00m,
                         ArtistID = adminUser.Id,
                         Duration = TimeSpan.FromMinutes(30),
-                        Status = ServiceStatus.Available
+                        Status = ServiceStatus.Available,
+                        ServiceTypeID = hairType.Id
                     },
                     new Service
                     {
@@ -82,7 +107,8 @@ namespace Infrastructure.Seeds
                         Price = 50.00m,
                         ArtistID = adminUser.Id,
                         Duration = TimeSpan.FromMinutes(60),
-                        Status = ServiceStatus.Available
+                        Status = ServiceStatus.Available,
+                        ServiceTypeID = spaType.Id
                     },
                     new Service
                     {
@@ -90,13 +116,15 @@ namespace Infrastructure.Seeds
                         Price = 30.00m,
                         ArtistID = adminUser.Id,
                         Duration = TimeSpan.FromMinutes(45),
-                        Status = ServiceStatus.Available
+                        Status = ServiceStatus.Available,
+                        ServiceTypeID = nailType.Id
                     }
                 );
 
                 await context.SaveChangesAsync();
             }
         }
+
 
 
         private static async Task SeedPayments(ApplicationDbContext context)

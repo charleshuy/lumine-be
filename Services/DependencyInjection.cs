@@ -52,6 +52,7 @@ namespace Application
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IServiceService, ServiceService>();
+            services.AddScoped<IServiceTypeService, ServiceTypeService>();
             return services;
         }
 

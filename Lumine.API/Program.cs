@@ -36,11 +36,11 @@ public class Program
         var app = builder.Build();
 
         // Seed data
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //    var services = scope.ServiceProvider;
-        //    await Seed.Initialize(services);
-        //}
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            await Seed.Initialize(services);
+        }
 
         // ✅ Enable Swagger in Development
         if (app.Environment.IsDevelopment())
