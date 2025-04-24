@@ -5,6 +5,7 @@ using Application.Paggings;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using static Domain.Base.BaseException;
 
 namespace Application.Services
 {
@@ -29,6 +30,7 @@ namespace Application.Services
             var query = _unitOfWork.GetRepository<Service>()
                 .Entities
                 .Include(s => s.Artist)
+                .Include(s => s.ServiceType)
                 .Where(s => !s.IsDeleted);
 
             // Apply filters if provided
@@ -62,6 +64,7 @@ namespace Application.Services
             var query = _unitOfWork.GetRepository<Service>()
                 .Entities
                 .Include(s => s.Artist)
+                .Include(s => s.ServiceType)
                 .Where(s => !s.IsDeleted && s.ArtistID == artistId)
                 .OrderBy(s => s.ServiceName);
 
@@ -71,5 +74,41 @@ namespace Application.Services
             return new PaginatedList<ResponseServiceDTO>(dtoList, paged.TotalCount, pageIndex, pageSize);
         }
 
+        public async Task<ResponseServiceDTO> CreateAsync(CreateServiceDTO dto)
+        {
+            var entity = _mapper.Map<Service>(dto);
+
+            await _unitOfWork.GetRepository<Service>().InsertAsync(entity);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<ResponseServiceDTO>(entity);
+        }
+
+        public async Task UpdateAsync(UpdateServiceDTO dto)
+        {
+            var repo = _unitOfWork.GetRepository<Service>();
+            var entity = await repo.GetByIdAsync(dto.Id);
+
+            if (entity == null || entity.IsDeleted)
+                throw new NotFoundException("service_not_found", $"Service with ID {dto.Id} not found");
+
+            _mapper.Map(dto, entity);
+
+            await repo.UpdateAsync(entity);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var repo = _unitOfWork.GetRepository<Service>();
+            var entity = await repo.GetByIdAsync(id);
+
+            if (entity == null || entity.IsDeleted)
+                throw new NotFoundException("service_not_found", $"Service with ID {id} not found");
+
+            entity.IsDeleted = true;
+            await repo.UpdateAsync(entity);
+            await _unitOfWork.SaveAsync();
+        }
     }
 }

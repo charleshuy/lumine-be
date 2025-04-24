@@ -12,7 +12,11 @@ namespace Application.MappingProfiles
             .ForMember(dest => dest.ServiceDescription, opt => opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.ArtistName, opt => opt.MapFrom(src =>
-                src.Artist != null ? $"{src.Artist.FirstName} {src.Artist.LastName}" : null));
+                src.Artist != null ? $"{src.Artist.FirstName} {src.Artist.LastName}" : null))
+            .ForMember(dest => dest.ServiceType, opt => opt.MapFrom(src => src.ServiceType)).ReverseMap();
+
+            CreateMap<CreateServiceDTO, Service>();
+            CreateMap<UpdateServiceDTO, Service>();
         }
     }
 }

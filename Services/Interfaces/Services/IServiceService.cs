@@ -13,5 +13,8 @@ namespace Application.Interfaces.Services
             decimal? price = null,
             ServiceStatus? status = null);
         Task<PaginatedList<ResponseServiceDTO>> GetAllServicesByArtistIdAsync(int pageIndex, int pageSize, Guid artistId);
+        Task<ResponseServiceDTO> CreateAsync(CreateServiceDTO dto);
+        Task UpdateAsync(UpdateServiceDTO dto);
+        Task DeleteAsync(Guid id);
     }
 }

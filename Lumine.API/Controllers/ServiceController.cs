@@ -67,5 +67,44 @@ namespace Lumine.API.Controllers
             var result = await _serviceService.GetAllServicesByArtistIdAsync(pageIndex, pageSize, artistId);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Creates a new service.
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<ResponseServiceDTO>> Create([FromBody] CreateServiceDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var created = await _serviceService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetAllServices), new { id = created.Id }, created);
+        }
+
+        /// <summary>
+        /// Updates an existing service.
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateServiceDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (id != dto.Id)
+                return BadRequest("ID in the URL must match ID in the body.");
+
+            await _serviceService.UpdateAsync(dto);
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Deletes a service by ID.
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _serviceService.DeleteAsync(id);
+            return NoContent();
+        }
     }
 }
