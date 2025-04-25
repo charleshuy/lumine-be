@@ -78,6 +78,16 @@ namespace Application.Services
             return userDto;
         }
 
+        public Guid? GetCurrentUserId()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return null;
+            if (Guid.TryParse(userIdClaim, out var userId))
+                return userId;
+            return null;
+        }
+
         public async Task<ResponseUserDTO?> GetCurrentUserAsync()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -16,5 +16,6 @@ namespace Application.Interfaces.Services
         Task<bool> UpdateUserAsync(Guid userId, UpdateUserDTO dto);
         Task<bool> UpdateCurrentUserProfileAsync(UpdateProfileDTO dto);
         Task<bool> DeleteUserAsync(Guid userId);
+        Guid? GetCurrentUserId();
     }
 }

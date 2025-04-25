@@ -4,17 +4,31 @@ using System.Text.Json;
 
 namespace Lumine.API.Middlewares
 {
+    /// <summary>  
+    /// Middleware for handling exceptions globally in the application.  
+    /// Logs exceptions and returns structured error responses.  
+    /// </summary>  
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
+        /// <summary>  
+        /// Initializes a new instance of the <see cref="ExceptionMiddleware"/> class.  
+        /// </summary>  
+        /// <param name="next">The next middleware in the pipeline.</param>  
+        /// <param name="logger">The logger instance for logging exceptions.</param>  
         public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
 
+        /// <summary>  
+        /// Invokes the middleware to handle exceptions during the request pipeline execution.  
+        /// </summary>  
+        /// <param name="context">The HTTP context of the current request.</param>  
+        /// <returns>A task representing the asynchronous operation.</returns>  
         public async Task Invoke(HttpContext context)
         {
             try
@@ -85,14 +99,14 @@ namespace Lumine.API.Middlewares
             }
         }
 
-        /// <summary>
-        /// Handles exceptions by logging and returning a structured response.
-        /// </summary>
-        /// <param name="context">HTTP context of the request.</param>
-        /// <param name="statusCode">HTTP status code to return.</param>
-        /// <param name="result">The structured error response.</param>
-        /// <param name="ex">The exception that occurred.</param>
-        /// <returns>A task representing the exception handling operation.</returns>
+        /// <summary>  
+        /// Handles exceptions by logging and returning a structured response.  
+        /// </summary>  
+        /// <param name="context">HTTP context of the request.</param>  
+        /// <param name="statusCode">HTTP status code to return.</param>  
+        /// <param name="result">The structured error response.</param>  
+        /// <param name="ex">The exception that occurred.</param>  
+        /// <returns>A task representing the exception handling operation.</returns>  
         private async Task HandleExceptionAsync(HttpContext context, int statusCode, object result, Exception ex)
         {
             _logger.LogError(ex, $"Exception occurred: {ex.Message}");
@@ -105,7 +119,6 @@ namespace Lumine.API.Middlewares
 
             await context.Response.WriteAsync(responseJson);
         }
-
     }
 
     /// <summary>  

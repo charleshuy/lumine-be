@@ -10,33 +10,42 @@ using System.Reflection;
 
 namespace Lumine.API
 {
+    /// <summary>  
+    /// Provides methods for configuring dependency injection in the application.  
+    /// </summary>  
     public static class DependencyInjection
     {
+        /// <summary>  
+        /// Configures services and adds them to the service collection.  
+        /// </summary>  
+        /// <param name="services">The service collection to configure.</param>  
+        /// <param name="configuration">The application configuration.</param>  
+        /// <returns>The updated service collection.</returns>  
         public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpContextAccessor();
 
-            // Register Layer
+            // Register Layer  
             services
                 .AddApplicationLayer(configuration)
                 .AddInfrastructureLayer(configuration)
                 .AddCustomAuthentication(configuration);
 
-            // Register Identity
+            // Register Identity  
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            // Add Swagger Configuration
+            // Add Swagger Configuration  
             services.AddSwaggerDocumentation();
 
             return services;
         }
 
-        /// <summary>
-        /// Configures Swagger documentation for the API.
-        /// </summary>
-        /// <param name="services">The service collection to configure.</param>
+        /// <summary>  
+        /// Configures Swagger documentation for the API.  
+        /// </summary>  
+        /// <param name="services">The service collection to configure.</param>  
         private static void AddSwaggerDocumentation(this IServiceCollection services)
         {
             services.AddSwaggerGen(options =>
@@ -59,21 +68,21 @@ namespace Lumine.API
                 });
 
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
-        {
-            {
-                new OpenApiSecurityScheme
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                new string[] {}
-            }
-        });
+                       {
+                           new OpenApiSecurityScheme
+                           {
+                               Reference = new OpenApiReference
+                               {
+                                   Type = ReferenceType.SecurityScheme,
+                                   Id = "Bearer"
+                               }
+                           },
+                           new string[] {}
+                       }
+                });
 
-                // Enable XML Comments (for Swagger API Documentation)
+                // Enable XML Comments (for Swagger API Documentation)  
                 var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
                 options.IncludeXmlComments(xmlPath);
