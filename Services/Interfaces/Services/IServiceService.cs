@@ -27,5 +27,6 @@ namespace Application.Interfaces.Services
         Task DeleteAsync(Guid id);
         Task<ResponseServiceDTO> CreateServiceForArtistAsync(CreateServiceForArtistDTO dto);
         Task UpdateServiceForArtistAsync(UpdateServiceDTO dto);
+        Task DeleteForArtistAsync(Guid id);
     }
 }

@@ -45,4 +45,16 @@ namespace Application.DTOs.ServiceDTO
         public ServiceStatus Status { get; set; }
         public Guid ServiceTypeID { get; set; }
     }
+
+    public class BookingServiceDTO
+    {
+        public Guid Id { get; set; }
+        public string? ServiceName { get; set; }
+        public string? ServiceDescription { get; set; }
+        public TimeSpan Duration { get; set; }
+        public decimal Price { get; set; }
+        public string? Status { get; set; }
+        public string? ArtistName { get; set; }
+        public Guid? ArtistID { get; set; }
+    }
 }

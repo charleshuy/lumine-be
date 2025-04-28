@@ -9,6 +9,8 @@ namespace Domain.Entities
         public decimal TotalPrice { get; set; }
         public decimal Deposit { get; set; }
         public BookingStatus Status { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
 
         // Foreign Keys
         public Guid ServiceID { get; set; }

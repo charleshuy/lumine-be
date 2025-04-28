@@ -59,7 +59,7 @@ namespace Infrastructure.Seeds
                 adminUser = await userManager.FindByEmailAsync(adminEmail);
             }
 
-            return adminUser;
+            return adminUser!;
         }
 
         private static async Task<List<ServiceType>> SeedServiceTypes(ApplicationDbContext context)

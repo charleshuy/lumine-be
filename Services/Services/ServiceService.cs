@@ -192,5 +192,20 @@ namespace Application.Services
             await repo.UpdateAsync(entity);
             await _unitOfWork.SaveAsync();
         }
+
+        public async Task DeleteForArtistAsync(Guid id)
+        {
+            var repo = _unitOfWork.GetRepository<Service>();
+            var entity = await repo.GetByIdAsync(id);
+
+            if (entity == null || entity.IsDeleted)
+                throw new NotFoundException("service_not_found", $"Service with ID {id} not found");
+            if (entity.ArtistID != _userService.GetCurrentUserId())
+                throw new UnauthorizedAccessException("You do not have permission to update this service.");
+
+            entity.IsDeleted = true;
+            await repo.UpdateAsync(entity);
+            await _unitOfWork.SaveAsync();
+        }
     }
 }

@@ -53,6 +53,7 @@ namespace Application
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
+            services.AddScoped<IBookingService, BookingService>();
             return services;
         }
 

@@ -56,6 +56,16 @@ namespace Lumine.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>  
+        /// Retrieves all services for an artist with pagination and optional filtering by service name, price, and status.  
+        /// </summary>  
+        /// <param name="pageIndex">The index of the page to retrieve.</param>  
+        /// <param name="pageSize">The number of items per page.</param>  
+        /// <param name="serviceName">Optional filter for service name.</param>  
+        /// <param name="price">Optional filter for service price.</param>  
+        /// <param name="status">Optional filter for service status (Available, Unavailable, Discontinued).</param>  
+        /// <returns>A paginated list of services for the artist.</returns>  
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Artist")]
         [HttpGet("by-artist")]
         public async Task<ActionResult<PaginatedList<ResponseServiceDTO>>> GetServicesForArtist(
             [FromQuery] int pageIndex = 1,
@@ -164,6 +174,19 @@ namespace Lumine.API.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _serviceService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        /// <summary>  
+        /// Deletes a service for an artist by ID.  
+        /// </summary>  
+        /// <param name="id">The ID of the service to delete.</param>  
+        /// <returns>No content if the deletion is successful.</returns>  
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Artist")]
+        [HttpDelete("by-artist/{id}")]
+        public async Task<IActionResult> DeleteServiceForArtist(Guid id)
+        {
+            await _serviceService.DeleteForArtistAsync(id);
             return NoContent();
         }
     }
