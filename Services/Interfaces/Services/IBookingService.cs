@@ -11,8 +11,11 @@ namespace Application.Interfaces.Services
             int pageIndex,
             int pageSize,
             Guid? customerId = null,
+            Guid? artistId = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
             BookingStatus? status = null);
+        Task<BookingDTO> CreateBookingAsync(BookingCreateDTO bookingDto);
+
     }
 }

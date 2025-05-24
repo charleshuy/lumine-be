@@ -43,10 +43,10 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(b => b.CustomerID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Booking>()
-                .HasOne(b => b.Payment)
-                .WithMany(p => p.Bookings)
-                .HasForeignKey(b => b.PaymentID);
+            //modelBuilder.Entity<Booking>()
+            //    .HasOne(b => b.Payment)
+            //    .WithMany(p => p.Bookings)
+            //    .HasForeignKey(b => b.PaymentID);
 
             modelBuilder.Entity<Booking>()
                 .Property(b => b.TotalPrice)
@@ -75,10 +75,10 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(o => o.CustomerID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Payment)
-                .WithMany(p => p.Orders)
-                .HasForeignKey(o => o.PaymentID);
+            //modelBuilder.Entity<Order>()
+            //    .HasOne(o => o.Payment)
+            //    .WithMany(p => p.Orders)
+            //    .HasForeignKey(o => o.PaymentID);
 
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalPrice)
@@ -101,6 +101,20 @@ namespace Infrastructure.Persistence
                 .HasForeignKey(s => s.ServiceTypeID)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
+
+            // Payment
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Order)
+                .WithMany(o => o.Payments)
+                .HasForeignKey(p => p.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Booking)
+                .WithMany(b => b.Payments)
+                .HasForeignKey(p => p.BookingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

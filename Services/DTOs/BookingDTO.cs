@@ -25,4 +25,14 @@ namespace Application.DTOs
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
     }
+
+    public class BookingCreateDTO
+    {
+        public Guid ServiceID { get; set; }
+        public Guid CustomerID { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        //public decimal TotalPrice { get; set; }
+        //public decimal Deposit { get; set; }
+    }
 }

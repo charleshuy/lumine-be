@@ -12,11 +12,17 @@ namespace Application.MappingProfiles
         {
             CreateMap<Booking, BookingDTO>()
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer))
-                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service));
+                .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
+                .ForPath(dest => dest.Service.ArtistName, opt => opt.MapFrom(src => src.Service != null && src.Service.Artist != null ? src.Service.Artist.UserName : null));
 
             CreateMap<Service, BookingServiceDTO>();
 
-            // 👇 Add this mapping to fix the PaginatedList problem
+            CreateMap<BookingCreateDTO, Booking>()
+                .ForMember(dest => dest.BookingDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => BookingStatus.Pending));
+
+
+            // 👇 Add this mapping to fix the PaginatedList problem  
             CreateMap(typeof(PaginatedList<>), typeof(PaginatedList<>))
                 .ConvertUsing(typeof(PaginatedListConverter<,>));
         }

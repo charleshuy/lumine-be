@@ -29,7 +29,8 @@ namespace Lumine.API.Controllers
         /// </summary>  
         /// <param name="pageIndex">Page index (default 1).</param>  
         /// <param name="pageSize">Page size (default 10).</param>  
-        /// <param name="customerId">Optional filter by customer ID.</param>  
+        /// <param name="customerId">Optional filter by customer ID.</param>
+        /// <param name="artistId"></param>  
         /// <param name="startDate">Optional filter by start date.</param>  
         /// <param name="endDate">Optional filter by end date.</param>  
         /// <param name="status">Optional filter by booking status.</param>  
@@ -39,6 +40,7 @@ namespace Lumine.API.Controllers
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] Guid? customerId = null,
+            [FromQuery] Guid? artistId = null,
             [FromQuery] DateTime? startDate = null,
             [FromQuery] DateTime? endDate = null,
             [FromQuery] BookingStatus? status = null)
@@ -46,8 +48,34 @@ namespace Lumine.API.Controllers
             if (pageIndex <= 0 || pageSize <= 0)
                 return BadRequest("Page index and size must be greater than 0.");
 
-            var bookings = await _bookingService.GetBookingsAsync(pageIndex, pageSize, customerId, startDate, endDate, status);
+            var bookings = await _bookingService.GetBookingsAsync(pageIndex, pageSize, customerId, artistId, startDate, endDate, status);
             return Ok(bookings);
+        }
+
+        /// <summary>
+        /// Creates a new booking.
+        /// </summary>
+        /// <param name="bookingDto">Booking data.</param>
+        /// <returns>The created booking.</returns>
+        [HttpPost]
+        public async Task<ActionResult<BookingDTO>> CreateBooking([FromBody] BookingCreateDTO bookingDto)
+        {
+            if (bookingDto == null)
+                return BadRequest("Booking data is required.");
+
+            try
+            {
+                var createdBooking = await _bookingService.CreateBookingAsync(bookingDto);
+                return CreatedAtAction(nameof(GetBookings), new { id = createdBooking.Id }, createdBooking);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while creating the booking.");
+            }
         }
     }
 }

@@ -16,10 +16,10 @@ namespace Infrastructure.Seeds
             await SeedRoles(roleManager);
             var adminUser = await SeedAdminUser(userManager);
             await SeedServices(context, adminUser);
-            await SeedPayments(context);
+            //await SeedPayments(context);
             await SeedBookings(context, adminUser);
             await SeedReviews(context, adminUser);
-            await SeedOrders(context, adminUser);
+            //await SeedOrders(context, adminUser);
         }
 
         private static async Task SeedRoles(RoleManager<ApplicationRole> roleManager)
@@ -127,38 +127,52 @@ namespace Infrastructure.Seeds
 
 
 
-        private static async Task SeedPayments(ApplicationDbContext context)
-        {
-            if (!context.Payments.Any())
-            {
-                context.Payments.AddRange(
-                    new Payment { PaymentMethod = PaymentMethod.Cash, Status = PaymentStatus.Completed},
-                    new Payment { PaymentMethod = PaymentMethod.PayPal, Status = PaymentStatus.Completed}
-                );
-                await context.SaveChangesAsync();
-            }
-        }
+        //private static async Task SeedPayments(ApplicationDbContext context)
+        //{
+        //    if (!context.Payments.Any())
+        //    {
+        //        context.Payments.AddRange(
+        //            new Payment { PaymentMethod = PaymentMethod.Cash, Status = PaymentStatus.Completed},
+        //            new Payment { PaymentMethod = PaymentMethod.PayPal, Status = PaymentStatus.Completed}
+        //        );
+        //        await context.SaveChangesAsync();
+        //    }
+        //}
 
         private static async Task SeedBookings(ApplicationDbContext context, ApplicationUser adminUser)
         {
             if (!context.Bookings.Any())
             {
                 var haircut = context.Services.First(s => s.ServiceName == "Haircut");
-                var payment = context.Payments.First();
 
-                context.Bookings.Add(new Booking
+                var booking = new Booking
                 {
                     ServiceID = haircut.Id,
                     CustomerID = adminUser.Id,
                     BookingDate = DateTime.UtcNow,
                     TotalPrice = 20.00m,
                     Deposit = 5.00m,
-                    PaymentID = payment.Id
-                });
+                    Status = BookingStatus.Confirmed,
+                    StartTime = DateTime.UtcNow.AddHours(1),
+                    EndTime = DateTime.UtcNow.AddHours(1.5)
+                };
 
+                context.Bookings.Add(booking);
+                await context.SaveChangesAsync();
+
+                var payment = new Payment
+                {
+                    PaymentMethod = PaymentMethod.Cash,
+                    Status = PaymentStatus.Completed,
+                    BookingId = booking.Id,
+                    Amount = booking.TotalPrice
+                };
+
+                context.Payments.Add(payment);
                 await context.SaveChangesAsync();
             }
         }
+
 
         private static async Task SeedReviews(ApplicationDbContext context, ApplicationUser adminUser)
         {
@@ -179,22 +193,33 @@ namespace Infrastructure.Seeds
             }
         }
 
-        private static async Task SeedOrders(ApplicationDbContext context, ApplicationUser adminUser)
-        {
-            if (!context.Orders.Any())
-            {
-                var payment = context.Payments.First();
+        //private static async Task SeedOrders(ApplicationDbContext context, ApplicationUser adminUser)
+        //{
+        //    if (!context.Orders.Any())
+        //    {
+        //        var order = new Order
+        //        {
+        //            CustomerID = adminUser.Id,
+        //            TotalPrice = 50.00m,
+        //            OrderDate = DateTime.UtcNow,
+        //            OrderStatus = OrderStatus.Pending
+        //        };
 
-                context.Orders.Add(new Order
-                {
-                    CustomerID = adminUser.Id,
-                    TotalPrice = 50.00m,
-                    OrderDate = DateTime.UtcNow,
-                    PaymentID = payment.Id
-                });
+        //        context.Orders.Add(order);
+        //        await context.SaveChangesAsync();
 
-                await context.SaveChangesAsync();
-            }
-        }
+        //        var payment = new Payment
+        //        {
+        //            PaymentMethod = PaymentMethod.PayPal,
+        //            Status = PaymentStatus.Completed,
+        //            OrderId = order.Id,
+        //            Amount = order.TotalPrice
+        //        };
+
+        //        context.Payments.Add(payment);
+        //        await context.SaveChangesAsync();
+        //    }
+        //}
+
     }
 }

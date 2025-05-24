@@ -12,17 +12,14 @@ namespace Domain.Entities
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
 
-        // Foreign Keys
         public Guid ServiceID { get; set; }
         public Service? Service { get; set; }
 
         public Guid CustomerID { get; set; }
-
         [ForeignKey("CustomerID")]
-        public ApplicationUser? Customer { get; set; }  // Navigation Property
+        public ApplicationUser? Customer { get; set; }
 
-        public Guid PaymentID { get; set; }
-        public Payment? Payment { get; set; }
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 
     public enum BookingStatus
