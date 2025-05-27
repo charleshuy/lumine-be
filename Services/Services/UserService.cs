@@ -6,7 +6,9 @@ using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Authentication;
 using System.Security.Claims;
+using static Domain.Base.BaseException;
 
 namespace Application.Services
 {
@@ -85,7 +87,7 @@ namespace Application.Services
                 return null;
             if (Guid.TryParse(userIdClaim, out var userId))
                 return userId;
-            return null;
+            throw new AuthenticationException("Loggin first pls!!!");
         }
 
         public async Task<ResponseUserDTO?> GetCurrentUserAsync()

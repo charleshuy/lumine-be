@@ -9,7 +9,7 @@ namespace Application.DTOs
         public DateTime BookingDate { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal Deposit { get; set; }
-        public BookingStatus Status { get; set; }
+        public string? Status { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public BookingServiceDTO? Service { get; set; } 

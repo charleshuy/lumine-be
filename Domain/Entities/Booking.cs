@@ -26,6 +26,7 @@ namespace Domain.Entities
     {
         Pending,
         Confirmed,
-        Canceled
+        Canceled,
+        Completed
     }
 }

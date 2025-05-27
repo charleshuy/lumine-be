@@ -13,6 +13,7 @@ namespace Application.MappingProfiles
             CreateMap<Booking, BookingDTO>()
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer))
                 .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
                 .ForPath(dest => dest.Service.ArtistName, opt => opt.MapFrom(src => src.Service != null && src.Service.Artist != null ? src.Service.Artist.UserName : null));
 
             CreateMap<Service, BookingServiceDTO>();
