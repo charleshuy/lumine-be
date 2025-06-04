@@ -72,6 +72,24 @@ namespace Application.Services.Auth
             return await GenerateJwtToken(user, _userManager);
         }
 
+        public async Task<string> SignInWithEmailPasswordAsync(string email, string password)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+            {
+                throw new BaseException.UnauthorizedException("invalid_credentials", "Invalid email or password.");
+            }
+
+            // Optional: Ensure the user has the "Admin" role
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                throw new BaseException.UnauthorizedException("access_denied", "User is not authorized as admin.");
+            }
+
+            return await GenerateJwtToken(user, _userManager);
+        }
+
 
         private async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager)
         {

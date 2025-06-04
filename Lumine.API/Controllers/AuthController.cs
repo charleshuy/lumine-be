@@ -28,6 +28,22 @@ namespace Lumine.API.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Logs in an admin using email and password.
+        /// </summary>
+        /// <param name="request">The login request containing email and password.</param>
+        /// <returns>A JWT token if login is successful.</returns>
+        [HttpPost("admin-login")]
+        public async Task<IActionResult> AdminLogin([FromBody] AdminLoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+                return BadRequest(new { message = "Email and password are required." });
+
+            var jwtToken = await _firebaseAuthService.SignInWithEmailPasswordAsync(request.Email, request.Password);
+            return Ok(new { token = jwtToken });
+        }
+
+
         /// <summary>  
         /// Logs in a user using Firebase authentication.  
         /// </summary>  

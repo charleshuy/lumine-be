@@ -31,7 +31,7 @@ namespace Lumine.API.Controllers
         /// <summary>  
         /// Retrieves bookings with pagination and optional filters.  
         /// </summary>  
-        /// <param name="pageIndex">Page index (default 1).</param>  
+        /// <param name="pageIndex">Page index (default 1).</param>
         /// <param name="pageSize">Page size (default 10).</param>  
         /// <param name="customerId">Optional filter by customer ID.</param>
         /// <param name="artistId"></param>  
@@ -114,8 +114,10 @@ namespace Lumine.API.Controllers
         /// 3 = Completed
         /// </param>  
         /// <returns>Paginated list of bookings for the customer.</returns>  
-        [HttpGet("customer")]
-        [Authorize(AuthenticationSchemes = "Jwt", Roles = "User")]
+        [HttpGet("customer")]
+
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "User")]
+
         public async Task<ActionResult<PaginatedList<BookingDTO>>> GetBookingsForCustomer(
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10,
