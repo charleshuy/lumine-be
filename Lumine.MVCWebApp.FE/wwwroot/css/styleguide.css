@@ -1,0 +1,10 @@
+﻿:root {
+    --star-and-checking: rgba(255, 143, 173, 1);
+    --gradient-26: rgba(255, 203, 252, 1);
+    --shadow: -6px 7px 4px 0px rgba(0, 0, 0, 0.15);
+    --shadow-2: 0px 4px 23px 0px rgba(0, 0, 0, 0.25);
+    --glow-for-dv: 0px 4px 26.700000762939453px 3px rgba(255, 219, 233, 1);
+    --SHADOW-OF-SERVICE: 0px 4px 21.100000381469727px 0px rgba(255, 164, 219, 1);
+    --variable-collection-color-line-thanh-bar: rgba(219, 189, 255, 1);
+    --variable-collection-color-glow: rgba(255, 223, 249, 0.48);
+}

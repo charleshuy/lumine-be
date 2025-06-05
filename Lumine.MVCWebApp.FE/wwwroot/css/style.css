@@ -1,0 +1,172 @@
+﻿body {
+    font-family: "Jura", sans-serif;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('../img/frame-9.svg') no-repeat center center / cover;
+    padding: 20px;
+}
+
+.login-form {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: var(--SHADOW-OF-SERVICE);
+    text-align: center;
+}
+
+    .login-form h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+        color: #353535;
+        font-family: "Judson", serif;
+    }
+
+    .login-form .subtitle {
+        font-size: 16px;
+        margin-bottom: 30px;
+        color: #000;
+        font-family: "K2D", sans-serif;
+    }
+
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1f1f1f;
+}
+
+.btn-login {
+    background-color: #1a1a1a;
+    color: #ebebeb;
+    font-size: 18px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+    .btn-login:hover {
+        background-color: #333;
+    }
+
+.divider {
+    margin: 20px 0;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #cbcbcb;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #eb5f89;
+}
+
+    .btn-google img {
+        width: 20px;
+        height: 20px;
+    }
+
+.register-prompt {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+    .register-prompt a {
+        font-weight: bold;
+        color: #373737;
+        text-decoration: underline;
+    }
+
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Jura", sans-serif;
+}
+
+.split-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Left half with image */
+.left-background {
+    flex: 1;
+    background: url('../img/averie-woodard-4nulm-JUYFo-unsplash1.png') no-repeat center center / cover;
+}
+
+/* Right half with login form */
+.right-login {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    position: relative;
+}
+
+/* Logo at top center */
+.logo-top-center {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+    .logo-top-center img {
+        height: 80px;
+        object-fit: contain;
+    }
+
+/* Reuse your existing login-form styles */
+.login-form {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: var(--SHADOW-OF-SERVICE);
+    text-align: center;
+}

@@ -1,15 +1,64 @@
 ﻿@model Application.DTOs.Auth.AdminLoginRequest
 
-<form asp-action="Login" method="post">
-    <div>
-        <label>Email</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="~/css/globals.css" />
+    <link rel="stylesheet" href="~/css/styleguide.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <title>Admin Login</title>
+</head>
+<body>
+    <div class="logo-top-center">
+        <img src="~/img/logo01.png" alt="Logo" />
     </div>
-    <div>
-        <label>Password</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
+
+    <div class="split-container">
+        <!-- Left side with background image -->
+        <div class="left-background"></div>
+
+        <!-- Right side with login form -->
+        <div class="right-login">
+            <div class="login-form">
+                <h1>ĐĂNG NHẬP ADMIN</h1>
+                <p class="subtitle">Quản lý tài khoản</p>
+
+                <form asp-action="Login" method="post" class="form-content">
+                    <div class="form-group">
+                        <label for="Email">Email / Số điện thoại</label>
+                        <input asp-for="Email" type="email" placeholder="Nhập số điện thoại / Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Mật khẩu</label>
+                        <input asp-for="Password" type="password" placeholder="Nhập mật khẩu" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" id="RememberMe" name="RememberMe" />
+                        <label for="RememberMe">Ghi nhớ mật khẩu cho lần sau</label>
+                    </div>
+
+                    <button type="submit" class="btn-login">ĐĂNG NHẬP</button>
+
+                    <div class="divider">Hoặc</div>
+
+                    <div class="btn-google">
+                        <img src="~/img/png-transparent-google-logo.png" alt="Google logo" />
+                        <span>Đăng nhập với Google</span>
+                    </div>
+                </form>
+
+                <div class="register-prompt">
+                    <span>Bạn chưa có tài khoản?</span>
+                    <a href="/Account/Register">Tạo tài khoản</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+</body>
+</html>
