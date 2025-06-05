@@ -22,13 +22,13 @@
         <!-- Right side with login form -->
         <div class="right-login">
             <div class="login-form">
-                <h1>ĐĂNG NHẬP ADMIN</h1>
+                <h1>ĐĂNG NHẬP</h1>
                 <p class="subtitle">Quản lý tài khoản</p>
 
                 <form asp-action="Login" method="post" class="form-content">
                     <div class="form-group">
-                        <label for="Email">Email / Số điện thoại</label>
-                        <input asp-for="Email" type="email" placeholder="Nhập số điện thoại / Email" />
+                        <label for="Email">Email</label>
+                        <input asp-for="Email" type="email" placeholder="Nhập Email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 

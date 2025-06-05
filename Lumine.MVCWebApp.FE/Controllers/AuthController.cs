@@ -49,9 +49,14 @@ namespace Lumine.MVCWebApp.FE.Controllers
             var responseData = JsonDocument.Parse(responseContent);
             var token = responseData.RootElement.GetProperty("token").GetString();
 
-            // Decode token to get claims (email, role, etc.)
             var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
+
+            var role = jwtToken.Claims.FirstOrDefault(c =>
+                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+            var email = jwtToken.Claims.FirstOrDefault(c =>
+                c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value ?? "";
 
             var claims = jwtToken.Claims.ToList();
             claims.Add(new Claim("TokenString", token));
@@ -61,13 +66,21 @@ namespace Lumine.MVCWebApp.FE.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            // Store token or data in cookie
             Response.Cookies.Append("TokenString", token);
-            Response.Cookies.Append("UserName", jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "");
-            Response.Cookies.Append("Role", jwtToken.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? "");
+            Response.Cookies.Append("UserName", email);
+            Response.Cookies.Append("Role", role ?? "");
 
-            return RedirectToAction("Index", "accounts");
+            if (!string.IsNullOrEmpty(role) && role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Accounts");
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
+
+
 
         public async Task<IActionResult> Logout()
         {
