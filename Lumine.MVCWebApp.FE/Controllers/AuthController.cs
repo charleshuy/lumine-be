@@ -66,7 +66,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
             Response.Cookies.Append("UserName", jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "");
             Response.Cookies.Append("Role", jwtToken.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? "");
 
-            return RedirectToAction("Index", "Services");
+            return RedirectToAction("Index", "accounts");
         }
 
         public async Task<IActionResult> Logout()

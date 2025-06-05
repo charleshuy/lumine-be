@@ -1,0 +1,90 @@
+﻿@model IEnumerable<Application.DTOs.UserDTO.ResponseUserDTO>
+@{
+    ViewData["Title"] = "User Management";
+    var pageIndex = ViewBag.PageIndex ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<h2>User Management</h2>
+
+<!-- Search Form -->
+<form method="get" class="mb-4">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <input type="text" name="username" class="form-control" placeholder="Username"
+                   value="@ViewBag.SearchUsername" />
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="email" class="form-control" placeholder="Email"
+                   value="@ViewBag.SearchEmail" />
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="phoneNumber" class="form-control" placeholder="Phone Number"
+                   value="@ViewBag.SearchPhoneNumber" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </div>
+</form>
+
+<!-- User Table -->
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No users found.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Roles</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td>
+                        @if (user.Roles != null && user.Roles.Any())
+                        {
+                            @string.Join(", ", user.Roles.Select(r => r.Name))
+                        }
+                        else
+                        {
+                            <span class="text-muted">No roles</span>
+                        }
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == pageIndex ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new {
+                           pageIndex = i,
+                           pageSize = ViewBag.PageSize,
+                           username = ViewBag.SearchUsername,
+                           email = ViewBag.SearchEmail,
+                           phoneNumber = ViewBag.SearchPhoneNumber
+                       })">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
