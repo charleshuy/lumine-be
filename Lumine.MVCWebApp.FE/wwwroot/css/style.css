@@ -14,6 +14,8 @@
     padding: 20px;
 }
 
+
+
 .login-form {
     background-color: #f9f9f9;
     border-radius: 10px;
@@ -170,3 +172,23 @@ body, html {
     box-shadow: var(--SHADOW-OF-SERVICE);
     text-align: center;
 }
+
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+}
+
+

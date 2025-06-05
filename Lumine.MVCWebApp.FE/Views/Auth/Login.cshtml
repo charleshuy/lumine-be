@@ -22,7 +22,7 @@
         <!-- Right side with login form -->
         <div class="right-login">
             <div class="login-form">
-                <h1>ĐĂNG NHẬP</h1>
+                <h1>ĐĂNG NHẬP ADMIN</h1>
                 <p class="subtitle">Quản lý tài khoản</p>
 
                 <form asp-action="Login" method="post" class="form-content">
@@ -32,11 +32,14 @@
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group password-wrapper">
                         <label for="Password">Mật khẩu</label>
                         <input asp-for="Password" type="password" placeholder="Nhập mật khẩu" />
+                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
+
+
 
                     <div class="form-check">
                         <input type="checkbox" id="RememberMe" name="RememberMe" />
@@ -55,10 +58,18 @@
 
                 <div class="register-prompt">
                     <span>Bạn chưa có tài khoản?</span>
-                    <a href="/Account/Register">Tạo tài khoản</a>
+                    <a href="/Auth/Register">Tạo tài khoản</a>
                 </div>
             </div>
         </div>
     </div>
 </body>
 </html>
+<script>
+    function togglePassword(icon) {
+        const input = icon.previousElementSibling;
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        icon.textContent = isHidden ? '🙈' : '👁️';
+    }
+</script>

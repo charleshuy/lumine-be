@@ -1,0 +1,75 @@
+﻿@model Application.DTOs.Auth.AdminLoginRequest
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="~/css/globals.css" />
+    <link rel="stylesheet" href="~/css/styleguide.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+    <title>Login</title>
+</head>
+<body>
+    <div class="logo-top-center">
+        <img src="~/img/logo01.png" alt="Logo" />
+    </div>
+
+    <div class="split-container">
+        <!-- Left side with background image -->
+        <div class="left-background"></div>
+
+        <!-- Right side with login form -->
+        <div class="right-login">
+            <div class="login-form">
+                <h1>ĐĂNG NHẬP</h1>
+                <p class="subtitle">Quản lý tài khoản</p>
+
+                <form asp-action="LoginUser" method="post" class="form-content">
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input asp-for="Email" type="email" placeholder="Nhập Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group password-wrapper">
+                        <label for="Password">Mật khẩu</label>
+                        <input asp-for="Password" type="password" placeholder="Nhập mật khẩu" />
+                        <span class="toggle-password" onclick="togglePassword(this)">👁️</span>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+
+
+                    <div class="form-check">
+                        <input type="checkbox" id="RememberMe" name="RememberMe" />
+                        <label for="RememberMe">Ghi nhớ mật khẩu cho lần sau</label>
+                    </div>
+
+                    <button type="submit" class="btn-login">ĐĂNG NHẬP</button>
+
+                    <div class="divider">Hoặc</div>
+
+                    <div class="btn-google">
+                        <img src="~/img/png-transparent-google-logo.png" alt="Google logo" />
+                        <span>Đăng nhập với Google</span>
+                    </div>
+                </form>
+
+                <div class="register-prompt">
+                    <span>Bạn chưa có tài khoản?</span>
+                    <a href="/Auth/Register">Tạo tài khoản</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    function togglePassword(icon) {
+        const input = icon.previousElementSibling;
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        icon.textContent = isHidden ? '🙈' : '👁️';
+    }
+</script>

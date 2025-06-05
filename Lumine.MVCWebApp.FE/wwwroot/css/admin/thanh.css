@@ -1,0 +1,391 @@
+﻿.thanh {
+    width: 281px;
+    height: 896px; /* keep or make it 100vh if it's meant to fill the screen */
+    overflow-y: auto; /* allow vertical scroll */
+    overflow-x: hidden; /* optional: prevent horizontal scroll */
+}
+
+
+
+    .thanh .overlap {
+        position: relative;
+        width: 280px;
+        height: auto;
+        top: -16px;
+        left: 1px;
+    }
+
+    .thanh .rectangle {
+        width: 279px;
+        height: 1481px;
+        left: 1px;
+        border-radius: 18px;
+        background: linear-gradient( 90deg, rgba(255, 241, 247, 1) 0%, rgba(251, 229, 248, 1) 100% );
+        position: absolute;
+        top: 0;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .logo {
+        position: absolute;
+        width: 117px;
+        height: 218px;
+        top: 52px;
+        left: 76px;
+        transform: rotate(0.05deg);
+        object-fit: cover;
+    }
+
+    .thanh .text-wrapper {
+        position: absolute;
+        width: 184px;
+        top: 269px;
+        left: 48px;
+        font-family: "Grape Nuts-Regular", Helvetica;
+        font-weight: 400;
+        color: #000000;
+        font-size: 64px;
+        letter-spacing: 0;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .thanh .qun-l-ngi-dng {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 502px;
+        left: 15px;
+    }
+
+    .thanh .overlap-group {
+        position: relative;
+        width: 187px;
+        height: 54px;
+        left: -2px;
+        border-radius: 6px;
+    }
+
+    .thanh .div {
+        position: absolute;
+        width: 187px;
+        height: 54px;
+        top: 0;
+        left: 0;
+        border-radius: 6px;
+        transform: rotate(0.05deg);
+        box-shadow: 0px 4px 4px #00000040;
+        background: linear-gradient( 90deg, rgba(224, 114, 255, 1) 0%, rgba(255, 153, 189, 1) 100% );
+    }
+
+    .thanh .text-wrapper-2 {
+        position: absolute;
+        width: 111px;
+        top: 13px;
+        left: 45px;
+        font-family: "Jura-Medium", Helvetica;
+        font-weight: 500;
+        color: #000000;
+        font-size: 17px;
+        letter-spacing: 0;
+        line-height: normal;
+    }
+
+    .thanh .vector {
+        width: 17px;
+        height: 17px;
+        top: 16px;
+        left: 16px;
+        position: absolute;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .overlap-wrapper {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 675px;
+        left: 15px;
+    }
+
+    .thanh .overlap-2 {
+        position: relative;
+        height: 54px;
+        left: -2px;
+        border-radius: 6px;
+    }
+
+    .thanh .rectangle-2 {
+        width: 250px;
+        height: 54px;
+        left: 0;
+        border-radius: 6px;
+        box-shadow: 0px 4px 4px #00000040;
+        background: linear-gradient( 270deg, rgba(247, 231, 235, 1) 0%, rgba(247, 203, 244, 1) 100% );
+        position: absolute;
+        top: 0;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .img {
+        width: 20px;
+        height: 17px;
+        top: 17px;
+        left: 15px;
+        position: absolute;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .qu-n-l-ng-i-d-ng-th {
+        position: absolute;
+        width: 200px;
+        top: 15px;
+        left: 45px;
+        font-family: "Jura-Medium", Helvetica;
+        font-weight: 500;
+        color: #000000;
+        font-size: 16px;
+        letter-spacing: 0;
+        line-height: normal;
+    }
+
+    .thanh .overlap-group-wrapper {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 752px;
+        left: 15px;
+    }
+
+    .thanh .vector-2 {
+        width: 14px;
+        height: 16px;
+        top: 19px;
+        left: 16px;
+        position: absolute;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .text-wrapper-3 {
+        position: absolute;
+        width: 136px;
+        top: 16px;
+        left: 45px;
+        font-family: "Jura-Medium", Helvetica;
+        font-weight: 500;
+        color: #000000;
+        font-size: 16px;
+        letter-spacing: 0;
+        line-height: normal;
+    }
+
+    .thanh .div-wrapper {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 829px;
+        left: 14px;
+    }
+
+    .thanh .cost {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 16px;
+        left: 14px;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .text-wrapper-4 {
+        position: absolute;
+        width: 200px;
+        top: 15px;
+        left: 45px;
+        font-family: "Jura-Medium", Helvetica;
+        font-weight: 500;
+        color: #000000;
+        font-size: 17px;
+        letter-spacing: 0;
+        line-height: normal;
+    }
+
+    .thanh .qun-l-ngi-dng-2 {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 906px;
+        left: 14px;
+    }
+
+    .thanh .vector-3 {
+        width: 18px;
+        height: 18px;
+        top: 19px;
+        left: 16px;
+        position: absolute;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .qun-l-ngi-dng-3 {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 1088px;
+        left: 14px;
+    }
+
+    .thanh .member {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        top: 14px;
+        left: 13px;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .qun-l-ngi-dng-4 {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 1174px;
+        left: 14px;
+    }
+
+    .thanh .settings {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 17px;
+        left: 17px;
+        overflow: hidden;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .group {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 0;
+        left: 0;
+    }
+
+    .thanh .qun-l-ngi-dng-5 {
+        position: absolute;
+        width: 250px;
+        height: 54px;
+        top: 1334px;
+        left: 14px;
+    }
+
+    .thanh .logout {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        top: 14px;
+        left: 13px;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .text-wrapper-5 {
+        position: absolute;
+        width: 200px;
+        top: 458px;
+        left: 15px;
+        font-family: "Jura-Bold", Helvetica;
+        font-weight: 700;
+        color: #000000;
+        font-size: 24px;
+        letter-spacing: 0;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .thanh .money {
+        position: absolute;
+        width: 185px;
+        height: 32px;
+        top: 370px;
+        left: 38px;
+    }
+
+    .thanh .text-wrapper-6 {
+        position: absolute;
+        width: 145px;
+        top: 2px;
+        left: 40px;
+        font-family: "Jura-Bold", Helvetica;
+        font-weight: 700;
+        color: #000000;
+        font-size: 24px;
+        letter-spacing: 0;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .thanh .overlap-3 {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        top: 0;
+        left: 0;
+        border-radius: 16px;
+    }
+
+    .thanh .ellipse {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        top: 0;
+        left: 0;
+        border-radius: 16px;
+        transform: rotate(0.05deg);
+        box-shadow: 0px 4px 4px #00000040;
+        background: linear-gradient( 90deg, rgba(224, 114, 255, 1) 0%, rgba(255, 153, 189, 1) 100% );
+    }
+
+    .thanh .vector-4 {
+        width: 12px;
+        height: 24px;
+        top: 4px;
+        left: 10px;
+        position: absolute;
+        transform: rotate(0.05deg);
+    }
+
+    .thanh .line {
+        position: absolute;
+        width: 201px;
+        height: 1px;
+        top: 350px;
+        left: 35px;
+        transform: rotate(0.05deg);
+        object-fit: cover;
+    }
+
+    .thanh .text-wrapper-7 {
+        position: absolute;
+        width: 200px;
+        top: 623px;
+        left: 15px;
+        font-family: "Jura-SemiBold", Helvetica;
+        font-weight: 600;
+        color: #000000;
+        font-size: 24px;
+        letter-spacing: 0;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .thanh .text-wrapper-8 {
+        position: absolute;
+        width: 200px;
+        top: 1028px;
+        left: 14px;
+        font-family: "Jura-SemiBold", Helvetica;
+        font-weight: 600;
+        color: #000000;
+        font-size: 24px;
+        letter-spacing: 0;
+        line-height: normal;
+        white-space: nowrap;
+    }

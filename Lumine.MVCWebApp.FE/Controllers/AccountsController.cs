@@ -121,13 +121,34 @@ namespace Lumine.MVCWebApp.FE.Controllers
         // GET: /Accounts/Delete/{id}
         public async Task<IActionResult> Delete(Guid id)
         {
+            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to load user.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            var user = JsonConvert.DeserializeObject<ResponseUserDTO>(json);
+            return View(user);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        {
             var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}/{id}");
 
             if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "User deleted successfully.";
                 return RedirectToAction(nameof(Index));
+            }
 
             TempData["Error"] = "Failed to delete user.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Delete), new { id });
         }
+
+
     }
 }

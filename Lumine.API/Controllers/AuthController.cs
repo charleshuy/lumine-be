@@ -3,6 +3,7 @@ using Application.DTOs.UserDTO;
 using Application.Interfaces.Auth;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lumine.API.Controllers
@@ -60,6 +61,37 @@ namespace Lumine.API.Controllers
             var jwtToken = await _firebaseAuthService.SignInWithFirebaseAsync(request.IdToken, request.fmcToken);
             return Ok(new { token = jwtToken });
         }
+
+        /// <summary>  
+        /// Logs in a user using email and password through Firebase authentication.  
+        /// </summary>  
+        /// <param name="dto">The login request containing email and password.</param>  
+        /// <returns>A JWT token if the login is successful.</returns>  
+        [HttpPost("email-firebase-login")]
+        public async Task<IActionResult> FirebasEmailLogin([FromBody] LoginRequest dto)
+        {
+            var jwt = await _firebaseAuthService.LoginWithEmailPasswordFirebaseAsync(dto.Email, dto.Password, null);
+            return Ok(new { token = jwt });
+        }
+
+
+        /// <summary>
+        /// Registers a new user with email and password.
+        /// </summary>
+        /// <param name="request">The registration request containing email and password.</param>
+        /// <returns>A JWT token if registration is successful.</returns>
+        [HttpPost("register-email")]
+        public async Task<IActionResult> RegisterWithEmail([FromBody] RegisterEmailRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest(new { message = "Email and password are required." });
+            }
+
+            await _firebaseAuthService.RegisterWithEmailPasswordFireBaseAsync(request.Email, request.Password);
+            return Ok(new { message = "Registration successful. Please verify your email." });
+        }
+
 
         /// <summary>  
         /// Retrieves the profile of the currently authenticated user.  

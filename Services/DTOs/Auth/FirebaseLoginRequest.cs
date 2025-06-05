@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.Auth
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Application.DTOs.Auth
 {
     public class FirebaseLoginRequest
     {
@@ -11,4 +13,18 @@
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
     }
+
+    public class RegisterEmailRequest
+    {
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; } = null!;
+
+        [Required(ErrorMessage = "Password is required.")]
+        [StringLength(100, ErrorMessage = "Password must be at least {2} characters long.", MinimumLength = 6)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).+$",
+            ErrorMessage = "Password must have at least one lowercase letter, one uppercase letter, and one non-alphanumeric character.")]
+        public string Password { get; set; } = null!;
+    }
+
 }
