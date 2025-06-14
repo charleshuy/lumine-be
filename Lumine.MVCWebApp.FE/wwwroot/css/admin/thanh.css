@@ -1,9 +1,16 @@
 ﻿.thanh {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 281px;
-    height: 896px; /* keep or make it 100vh if it's meant to fill the screen */
-    overflow-y: auto; /* allow vertical scroll */
-    overflow-x: hidden; /* optional: prevent horizontal scroll */
+    height: 100vh;
+    background: linear-gradient(90deg, rgba(255, 241, 247, 1) 0%, rgba(251, 229, 248, 1) 100%);
+    z-index: 200;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
+
 
 
 
@@ -389,3 +396,49 @@
         line-height: normal;
         white-space: nowrap;
     }
+
+
+    /* Toggle button style */
+    .thanh .sidebar-toggle-btn {
+        position: fixed; /* keep it fixed in sidebar */
+        top: 10px;
+        left: 10px;
+        z-index: 300;
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        font-size: 24px;
+        line-height: 38px;
+        text-align: center;
+        user-select: none;
+        transition: background 0.2s ease;
+    }
+
+        .thanh .sidebar-toggle-btn:hover {
+            background: #eee;
+        }
+
+    /* When sidebar has class 'collapsed' */
+    .thanh.collapsed {
+        width: 60px !important; /* narrow sidebar */
+        overflow: visible;
+        transition: width 0.3s ease;
+    }
+
+        /* Hide all child elements except the toggle button */
+        .thanh.collapsed > *:not(.sidebar-toggle-btn) {
+            opacity: 0;
+            pointer-events: none;
+            user-select: none;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Keep toggle button fully visible and interactive */
+        .thanh.collapsed .sidebar-toggle-btn {
+            opacity: 1;
+            pointer-events: auto;
+            user-select: auto;
+        }

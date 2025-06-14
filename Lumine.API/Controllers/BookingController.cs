@@ -63,6 +63,19 @@ namespace Lumine.API.Controllers
             return Ok(bookings);
         }
 
+        /// <summary>
+        /// Retrieves a summary of completed and canceled bookings, grouped by the booking date.
+        /// </summary>
+        /// <returns>A list of booking status summaries with completed and canceled counts.</returns>
+        [HttpGet("status-summary")]
+        //[Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
+        public async Task<ActionResult<List<BookingStatusSummaryDTO>>> GetBookingStatusSummary()
+        {
+            var summary = await _bookingService.GetBookingStatusSummaryAsync();
+            return Ok(summary);
+        }
+
+
         /// <summary>  
         /// Retrieves bookings for the currently authenticated artist with pagination and optional filters.  
         /// </summary>  
@@ -180,7 +193,7 @@ namespace Lumine.API.Controllers
         /// </param>
         /// <returns>The updated booking.</returns>
         [HttpPut("{id}/confirm")]
-        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Artist, User")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Artist, Admin")]
         public async Task<ActionResult<BookingDTO>> ConfirmBooking(Guid id, [FromQuery] BookingStatus status = BookingStatus.Confirmed)
         {
             var confirmedBooking = await _bookingService.StatusBookingAsync(id, status);

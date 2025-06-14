@@ -15,6 +15,7 @@ namespace Application.Interfaces.Services
             DateTime? startDate = null,
             DateTime? endDate = null,
             BookingStatus? status = null);
+        Task<List<BookingStatusSummaryDTO>> GetBookingStatusSummaryAsync();
         Task<BookingDTO> CreateBookingAsync(BookingCreateDTO bookingDto);
         Task<BookingDTO> BookingForCustomerAsync(BookingCreateDTO bookingDto);
         Task<BookingDTO> StatusBookingAsync(Guid bookingId, BookingStatus status);

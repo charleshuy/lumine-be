@@ -7,11 +7,13 @@ namespace Domain.Entities
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string? FcmToken { get; set; }
+        public string Address { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool isApproved { get; set; } = false;
         public string? ProfilePicture { get; set; }
     }
 }

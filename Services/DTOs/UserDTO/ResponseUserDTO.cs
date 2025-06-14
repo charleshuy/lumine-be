@@ -15,6 +15,11 @@ namespace Application.DTOs.UserDTO
         public List<RoleDTO>? Roles { get; set; }
     }
 
+    public class CreatedSummaryDTO
+    {
+        public DateTime Date { get; set; }
+        public int Count { get; set; }
+    }
 
     public class RoleDTO
     {

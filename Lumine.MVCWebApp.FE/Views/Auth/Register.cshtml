@@ -5,54 +5,81 @@
     ViewData["Title"] = "Register";
 }
 
-<h2>Register</h2>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-success">
-        @ViewBag.Message
+<div class="register-page">
+    <div class="logo-top-center">
+        <img src="~/img/logo01.png" alt="Logo" />
     </div>
+    <div class="quay-li">
+        <a asp-action="Login" class="QUAY-l-i">&lt; QUAY LẠI</a>
+    </div>
+
+    <form asp-action="Register" method="post" class="register-form" novalidate>
+        <button type="button" class="google-btn">
+            <img src="~/img/google-icon.png" alt="Google icon" />
+            <span>Đăng nhập bằng Google</span>
+        </button>
+
+        <div class="form-group icon-input">
+            <i class="fa-solid fa-user"></i>
+            <input asp-for="FullName" placeholder="Nhập họ & tên" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group icon-input">
+            <i class="fa-solid fa-location-dot"></i>
+            <input asp-for="Address" placeholder="Nhập địa chỉ" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <div class="form-group icon-input">
+            <i class="fa-solid fa-phone"></i>
+            <input asp-for="PhoneNumber" placeholder="Nhập số điện thoại" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="form-group icon-input">
+            <i class="fa-solid fa-envelope"></i>
+            <input asp-for="Email" placeholder="Nhập Email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group icon-input">
+            <i class="fa-solid fa-lock"></i>
+            <input asp-for="Password" id="passwordInput" type="password" placeholder="Nhập mật khẩu" />
+            <span class="password-toggle" onclick="togglePassword()">
+                <i id="toggleIcon" class="fa-solid fa-eye"></i>
+            </span>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group icon-input">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" placeholder="Nhập mật khẩu lần 2" />
+            @* You can use JavaScript or custom validation for matching password confirmation *@
+        </div>
+
+        <div class="form-check">
+            <input type="checkbox" id="agreeTerms" required />
+            <label for="agreeTerms">
+                Tôi hiểu và đồng ý với Điều khoản dịch vụ của Lumine, bao gồm Thỏa thuận người dùng và Chính sách quyền riêng tư
+            </label>
+        </div>
+
+        <button type="submit" class="submit-btn">Tạo tài khoản</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword() {
+            const input = document.getElementById("passwordInput");
+            const icon = document.getElementById("toggleIcon");
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+        }
+    </script>
 }
-
-@if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(string.Empty))
-{
-    foreach (var modelError in ViewData.ModelState[string.Empty].Errors)
-    {
-        <div class="alert alert-danger">@modelError.ErrorMessage</div>
-    }
-}
-
-<form asp-action="Register" method="post" novalidate>
-    <div class="form-group mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3 position-relative">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" class="form-control pe-5" type="password" id="passwordInput" />
-        <span class="password-toggle" onclick="togglePassword()">
-            <i id="toggleIcon" class="fa-solid fa-eye"></i>
-        </span>
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
-
-@* @section Scripts { *@
-@*     <partial name="_ValidationScriptsPartial" /> *@
-@* } *@
-<script>
-    function togglePassword() {
-        const input = document.getElementById("passwordInput");
-        const icon = document.getElementById("toggleIcon");
-        const isPassword = input.type === "password";
-
-        input.type = isPassword ? "text" : "password";
-        icon.classList.toggle("fa-eye");
-        icon.classList.toggle("fa-eye-slash");
-    }
-</script>

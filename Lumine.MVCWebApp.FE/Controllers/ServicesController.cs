@@ -63,7 +63,7 @@ namespace Lumine.MVC.Controllers
 
         //public async Task<IActionResult> Edit(Guid id)
         //{
-        //    var response = await _httpClient.GetAsync($"{_apiBaseUrl}?pageIndex=1&pageSize=100");
+        //    var response = await _httpClient.GetAsync($"{_apiBaseUrlUser}?pageIndex=1&pageSize=100");
         //    var jsonString = await response.Content.ReadAsStringAsync();
         //    var data = JsonConvert.DeserializeObject<PaginatedList<ResponseServiceDTO>>(jsonString);
         //    var service = data.Items.FirstOrDefault(s => s.Id == id);

@@ -49,6 +49,29 @@ namespace Lumine.API.Controllers
         }
 
         /// <summary>  
+        /// Retrieves a full list of all users without pagination.  
+        /// </summary>  
+        /// <returns>A list of all users.</returns>  
+        [HttpGet("all")]
+        public async Task<ActionResult<List<ResponseUserDTO>>> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        /// <summary>  
+        /// Retrieves a summary of users created grouped by date.  
+        /// </summary>  
+        /// <returns>A list of created summaries containing date and count.</returns>  
+        [HttpGet("created-summary")]
+        public async Task<IActionResult> GetUsersCreatedSummary()
+        {
+            var data = await _userService.GetUsersCreatedSummaryAsync();
+            return Ok(data);
+        }
+
+
+        /// <summary>  
         /// Retrieves a user by their unique identifier.  
         /// </summary>  
         /// <param name="id">The unique identifier of the user.</param>  

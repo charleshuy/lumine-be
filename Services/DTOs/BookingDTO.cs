@@ -35,4 +35,11 @@ namespace Application.DTOs
         //public decimal TotalPrice { get; set; }
         //public decimal Deposit { get; set; }
     }
+
+    public class BookingStatusSummaryDTO
+    {
+        public DateTime Date { get; set; }
+        public int CompletedCount { get; set; }
+        public int CanceledCount { get; set; }
+    }
 }

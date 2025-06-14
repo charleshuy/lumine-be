@@ -88,7 +88,7 @@ namespace Lumine.API.Controllers
                 return BadRequest(new { message = "Email and password are required." });
             }
 
-            await _firebaseAuthService.RegisterWithEmailPasswordFireBaseAsync(request.Email, request.Password);
+            await _firebaseAuthService.RegisterWithEmailPasswordFireBaseAsync(request);
             return Ok(new { message = "Registration successful. Please verify your email." });
         }
 

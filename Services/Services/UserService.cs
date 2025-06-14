@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Authentication;
 using System.Security.Claims;
 using static Domain.Base.BaseException;
@@ -66,6 +67,47 @@ namespace Application.Services
 
             return new PaginatedList<ResponseUserDTO>(usersDto, pagedUsers.TotalCount, pageIndex, pageSize);
         }
+
+        public async Task<List<ResponseUserDTO>> GetAllUsersAsync()
+        {
+            var users = _unitOfWork.GetRepository<ApplicationUser>().Entities
+                .Where(u => !u.IsDeleted)
+                .OrderBy(u => u.Email)
+                .ToList();
+
+            var usersDto = _mapper.Map<List<ResponseUserDTO>>(users);
+
+            for (int i = 0; i < users.Count; i++)
+            {
+                var user = users[i];
+                var roles = await _userManager.GetRolesAsync(user);
+                usersDto[i].Roles = roles.Select(r => new RoleDTO { Name = r }).ToList();
+            }
+
+            return usersDto;
+        }
+
+        public async Task<List<CreatedSummaryDTO>> GetUsersCreatedSummaryAsync()
+        {
+            var users = await _userManager.Users
+                .Where(u => !u.IsDeleted)
+                .ToListAsync();
+
+            var summary = users
+                .GroupBy(u => u.CreatedAt.Date)
+                .Select(g => new CreatedSummaryDTO
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(s => s.Date)
+                .ToList();
+
+            return summary;
+        }
+
+
+
         public async Task<ResponseUserDTO?> GetUserByIdAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());

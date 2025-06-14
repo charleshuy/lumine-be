@@ -59,6 +59,27 @@ namespace Lumine.MVCWebApp.FE.Controllers
             }
         }
 
+        // GET: /Accounts/All
+        public async Task<IActionResult> All()
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/all");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var users = JsonConvert.DeserializeObject<List<ResponseUserDTO>>(json);
+
+                return View(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch all users.");
+                return View(new List<ResponseUserDTO>());
+            }
+        }
+
+
 
         // GET: /Accounts/Details/{id}
         public async Task<IActionResult> Details(Guid id)
