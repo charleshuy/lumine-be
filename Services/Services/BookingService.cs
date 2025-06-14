@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Interfaces.UOW;
 using Application.Paggings;
@@ -94,6 +95,26 @@ namespace Application.Services
 
             return _mapper.Map<BookingDTO>(bookingWithIncludes);
         }
+
+        public async Task<List<BookingStatusSummaryDTO>> GetBookingStatusSummaryAsync()
+        {
+            var summary = await _unitOfWork.GetRepository<Booking>()
+                .Entities
+                .Where(b => !b.IsDeleted && (b.Status == BookingStatus.Completed || b.Status == BookingStatus.Canceled))
+                .GroupBy(b => b.BookingDate.Date)
+                .Select(g => new BookingStatusSummaryDTO
+                {
+                    Date = g.Key,
+                    CompletedCount = g.Count(b => b.Status == BookingStatus.Completed),
+                    CanceledCount = g.Count(b => b.Status == BookingStatus.Canceled)
+                })
+                .OrderBy(s => s.Date)
+                .ToListAsync();
+
+            return summary;
+        }
+
+
 
         public async Task<BookingDTO> BookingForCustomerAsync(BookingCreateDTO bookingDto)
         {

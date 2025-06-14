@@ -39,8 +39,6 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
 
-
-
                     <div class="form-check">
                         <input type="checkbox" id="RememberMe" name="RememberMe" />
                         <label for="RememberMe">Ghi nhớ mật khẩu cho lần sau</label>
@@ -63,13 +61,14 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword(icon) {
+            const input = icon.previousElementSibling;
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.textContent = isHidden ? '🙈' : '👁️';
+        }
+    </script>
 </body>
 </html>
-<script>
-    function togglePassword(icon) {
-        const input = icon.previousElementSibling;
-        const isHidden = input.type === 'password';
-        input.type = isHidden ? 'text' : 'password';
-        icon.textContent = isHidden ? '🙈' : '👁️';
-    }
-</script>

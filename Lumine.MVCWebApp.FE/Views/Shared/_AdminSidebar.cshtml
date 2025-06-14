@@ -1,25 +1,30 @@
 ﻿@* Views/Shared/_AdminSidebar.cshtml *@
-<div class="thanh">
+<div class="thanh" id="admin-sidebar">
+    <button id="sidebarToggle" class="sidebar-toggle-btn">
+        <i class="fas fa-bars"></i>
+    </button>
     <div class="overlap">
         <div class="rectangle"></div>
         <img class="logo" src="~/img/logo01.png" />
         <div class="text-wrapper">Lumine</div>
 
-        <div class="qun-l-ngi-dng">
+        <a href="@Url.Action("Index", "Dashboard")" class="qun-l-ngi-dng text-decoration-none text-dark">
             <div class="overlap-group">
                 <div class="div"></div>
                 <div class="text-wrapper-2">Dashboard</div>
                 <img class="vector" src="~/img/image.svg" />
             </div>
-        </div>
+        </a>
 
-        <div class="overlap-wrapper">
+
+        <a href="@Url.Action("Index", "Accounts")" class="overlap-wrapper text-decoration-none text-dark">
             <div class="overlap-2">
                 <div class="rectangle-2"></div>
                 <img class="img" src="~/img/vector-3.svg" />
                 <p class="qu-n-l-ng-i-d-ng-th">Quản lý người dùng &amp; thợ</p>
             </div>
-        </div>
+        </a>
+
 
         <div class="overlap-group-wrapper">
             <div class="overlap-2">
@@ -84,3 +89,5 @@
         <div class="text-wrapper-8">QUẢN LÝ ADMIN</div>
     </div>
 </div>
+
+

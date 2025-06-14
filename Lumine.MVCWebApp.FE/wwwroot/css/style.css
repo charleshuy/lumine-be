@@ -1,129 +1,8 @@
-﻿body {
-    font-family: "Jura", sans-serif;
-    background-color: #fff;
-    margin: 0;
-    padding: 0;
-}
-
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: url('../img/frame-9.svg') no-repeat center center / cover;
-    padding: 20px;
-}
-
-
-
-.login-form {
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 40px;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: var(--SHADOW-OF-SERVICE);
-    text-align: center;
-}
-
-    .login-form h1 {
-        font-size: 32px;
-        margin-bottom: 10px;
-        color: #353535;
-        font-family: "Judson", serif;
-    }
-
-    .login-form .subtitle {
-        font-size: 16px;
-        margin-bottom: 30px;
-        color: #000;
-        font-family: "K2D", sans-serif;
-    }
-
-.form-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-    .form-group input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 14px;
-    }
-
-.form-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #1f1f1f;
-}
-
-.btn-login {
-    background-color: #1a1a1a;
-    color: #ebebeb;
-    font-size: 18px;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-    .btn-login:hover {
-        background-color: #333;
-    }
-
-.divider {
-    margin: 20px 0;
-    text-transform: uppercase;
-    font-size: 12px;
-    color: #aaa;
-}
-
-.btn-google {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background-color: #cbcbcb;
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #eb5f89;
-}
-
-    .btn-google img {
-        width: 20px;
-        height: 20px;
-    }
-
-.register-prompt {
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-    .register-prompt a {
-        font-weight: bold;
-        color: #373737;
-        text-decoration: underline;
-    }
-
-
-body, html {
+﻿body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    font-family: "Jura", sans-serif;
+    
 }
 
 .split-container {
@@ -132,13 +11,15 @@ body, html {
     width: 100%;
 }
 
-/* Left half with image */
+/* LEFT: Image side with right rounded edge */
 .left-background {
     flex: 1;
     background: url('../img/averie-woodard-4nulm-JUYFo-unsplash1.png') no-repeat center center / cover;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
 }
 
-/* Right half with login form */
+/* RIGHT: Login form */
 .right-login {
     flex: 1;
     display: flex;
@@ -146,6 +27,16 @@ body, html {
     align-items: center;
     background-color: #fff;
     position: relative;
+}
+
+.login-form {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: var(--SHADOW-OF-SERVICE, 0 4px 12px rgba(0, 0, 0, 0.1));
+    text-align: center;
 }
 
 /* Logo at top center */
@@ -158,37 +49,80 @@ body, html {
 }
 
     .logo-top-center img {
-        height: 80px;
+        height: 160px; /* Increased from 80px */
         object-fit: contain;
     }
 
-/* Reuse your existing login-form styles */
-.login-form {
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 40px;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: var(--SHADOW-OF-SERVICE);
-    text-align: center;
+
+/* Optional improvements */
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
+.form-group {
+    text-align: left;
+}
+
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 36px;
+    cursor: pointer;
+}
 
 .password-wrapper {
     position: relative;
 }
 
-.password-wrapper input {
-    padding-right: 40px;
-}
-
-.password-toggle {
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
+.btn-login {
+    padding: 12px;
+    border-radius: 6px;
+    border: none;
+    background-color: #1a1a1a;
+    color: #fff;
     cursor: pointer;
-    color: #6c757d;
 }
 
+.divider {
+    margin: 20px 0;
+    color: #aaa;
+    text-transform: uppercase;
+    font-size: 12px;
+}
 
+.btn-google {
+    background-color: #cbcbcb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+    .btn-google img {
+        height: 20px;
+        width: auto;
+    }
+
+
+.register-prompt {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+    .register-prompt a {
+        font-weight: bold;
+        color: #373737;
+        text-decoration: underline;
+    }

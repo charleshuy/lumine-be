@@ -16,6 +16,18 @@ namespace Application.DTOs.Auth
 
     public class RegisterEmailRequest
     {
+        [Required(ErrorMessage = "Full name is required.")]
+        [StringLength(100, ErrorMessage = "Full name must be less than 100 characters.")]
+        public string FullName { get; set; } = null!;
+
+        [Required(ErrorMessage = "Address is required.")]
+        [StringLength(200, ErrorMessage = "Address must be less than 200 characters.")]
+        public string Address { get; set; } = null!;
+
+        [Required(ErrorMessage = "Phone number is required.")]
+        [Phone(ErrorMessage = "Invalid phone number format.")]
+        public string PhoneNumber { get; set; } = null!;
+
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; } = null!;

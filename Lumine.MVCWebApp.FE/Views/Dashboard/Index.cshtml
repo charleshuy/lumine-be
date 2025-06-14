@@ -1,0 +1,114 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var chartData = ViewBag.BookingChartData;
+}
+
+<div style="display: flex; min-height: 100vh;">
+
+    <!-- Sidebar -->
+    @Html.Partial("_AdminSidebar")
+
+    <!-- Main Content -->
+    <div class="admin-content p-4" style="flex-grow: 1;">
+
+        <!-- Shared image or banner -->
+        @Html.Partial("_sharedPic")
+
+        @await Html.PartialAsync("_AppOverview")
+
+
+        <canvas id="bookingChart" width="400" height="200"></canvas>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const rawData = @Html.Raw(chartData);
+        const labels = rawData.map(d => d.date);
+        const completed = rawData.map(d => d.completedCount);
+        const canceled = rawData.map(d => d.canceledCount);
+
+        const ctx = document.getElementById('bookingChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Hoàn thành',
+                        data: completed,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Đã hủy',
+                        data: canceled,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Tình trạng đơn đặt lịch theo ngày'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Ngày',
+                            color: '#666',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Poppins',
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Số lượng',
+                            color: '#666',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            font: {
+                                family: 'Poppins',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

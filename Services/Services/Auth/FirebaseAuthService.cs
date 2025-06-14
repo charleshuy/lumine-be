@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Auth;
+﻿using Application.DTOs.Auth;
+using Application.Interfaces.Auth;
 using Domain.Base;
 using Domain.Entities;
 using FirebaseAdmin.Auth;
@@ -90,57 +91,58 @@ namespace Application.Services.Auth
             return await GenerateJwtToken(user, _userManager);
         }
 
-        public async Task RegisterWithEmailPasswordFireBaseAsync(string email, string password)
+        public async Task RegisterWithEmailPasswordFireBaseAsync(RegisterEmailRequest request)
         {
             var apiKey = _configuration["Firebase:ApiKey"];
             var signUpUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={apiKey}";
 
             var payload = new
             {
-                email = email,
-                password = password,
+                email = request.Email,
+                password = request.Password,
                 returnSecureToken = true
             };
 
-            var httpClient = new HttpClient();
+            using var httpClient = new HttpClient();
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(signUpUrl, content);
 
             if (!response.IsSuccessStatusCode)
-                throw new BaseException.BadRequestException("registration_failed", "Failed to register user. Please try again.");
+                throw new BaseException.BadRequestException("registration_failed", "Đăng ký không thành công. Vui lòng thử lại.");
 
             var responseData = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var idToken = responseData.RootElement.GetProperty("idToken").GetString();
 
-            
-
-            // ✅ Create user in Identity
-            var existingUser = await _userManager.FindByEmailAsync(email);
+            // ✅ Check if user already exists
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
-                throw new BaseException.BadRequestException("user_exists", "User already exists.");
+                throw new BaseException.BadRequestException("user_exists", "Tài khoản đã tồn tại.");
 
+            // ✅ Create ApplicationUser
             var newUser = new ApplicationUser
             {
-                UserName = email.Split('@')[0],
-                Email = email,
-                FirstName = "",
-                LastName = "",
+                UserName = request.Email.Split('@')[0],
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address,
+                FirstName = request.FullName, // You can split into First/Last if needed
                 CreatedAt = DateTime.UtcNow,
                 IsActive = false,
             };
 
-            var result = await _userManager.CreateAsync(newUser, password);
+            var result = await _userManager.CreateAsync(newUser, request.Password);
             if (!result.Succeeded)
             {
-                throw new BaseException.BadRequestException("create_user_failed",
-                    $"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new BaseException.BadRequestException("create_user_failed", $"Không thể tạo người dùng: {errors}");
             }
 
             await _userManager.AddToRoleAsync(newUser, "User");
 
-            // ✅ Send email verification
+            // ✅ Send Email Verification via Firebase
             await SendEmailVerificationAsync(idToken);
         }
+
 
         private async Task SendEmailVerificationAsync(string idToken)
         {
