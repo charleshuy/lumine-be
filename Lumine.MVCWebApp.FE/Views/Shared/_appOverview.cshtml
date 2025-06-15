@@ -1,10 +1,12 @@
 ﻿@* Views/Shared/_AppOverview.cshtml *@
+@model Application.DTOs.AppOverviewDTO
+
 <div class="tng">
     <div class="t">
         <div class="overlap-group">
             <div class="rectangle"></div>
-            <div class="text-wrapper">90%</div>
-            <div class="div">300 / ng</div>
+            <div class="text-wrapper">@(Model.TotalUsers * 100 / (Model.TotalUsers + 1))%</div>
+            <div class="div">@Model.TotalUsers / ng</div>
             <div class="text-wrapper-2">Tổng người dùng</div>
         </div>
     </div>
@@ -13,8 +15,8 @@
         <div class="overlap">
             <div class="rectangle"></div>
             <div class="text-wrapper-3">Tổng đối tác</div>
-            <div class="text-wrapper">80%</div>
-            <div class="text-wrapper-4">160 / ng</div>
+            <div class="text-wrapper">@(Model.TotalPartners * 100 / (Model.TotalPartners + 1))%</div>
+            <div class="text-wrapper-4">@Model.TotalPartners / ng</div>
         </div>
     </div>
 
@@ -23,7 +25,10 @@
             <div class="rectangle"></div>
             <p class="p">Tổng số đơn thành công</p>
             <div class="text-wrapper">50%</div>
-            <p class="element-n-th-ng"><span class="span">45</span> <span class="text-wrapper-5">đơn / tháng</span></p>
+            <p class="element-n-th-ng">
+                <span class="span">@Model.TotalCompletedBookings</span>
+                <span class="text-wrapper-5">đơn / tháng</span>
+            </p>
         </div>
     </div>
 
@@ -32,7 +37,11 @@
             <div class="rectangle"></div>
             <div class="text-wrapper-3">Tổng doanh thu web</div>
             <div class="text-wrapper">76%</div>
-            <p class="element-n-th-ng"><span class="span">43</span> <span class="text-wrapper-5">đơn / tháng</span></p>
+            <p class="element-n-th-ng">
+                <span class="span">@Model.TotalRevenue.ToString("N0")</span>
+                <span class="text-wrapper-5">VNĐ</span>
+            </p>
         </div>
     </div>
 </div>
+

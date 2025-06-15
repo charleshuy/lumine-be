@@ -1,6 +1,8 @@
-﻿using FirebaseAdmin;
+﻿using Domain.Entities;
+using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -57,7 +59,48 @@ namespace Infrastructure.Identity
                     IssuerSigningKey = jwtKey,
                     RoleClaimType = ClaimTypes.Role
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+
+                        var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                        if (string.IsNullOrEmpty(userId))
+                        {
+                            context.Fail("Missing user ID in token");
+                            return;
+                        }
+
+                        var user = await userManager.FindByIdAsync(userId);
+                        if (user == null || user.IsDeleted)
+                        {
+                            context.Fail("User not found");
+                            return;
+                        }
+
+                        if (!user.IsActive)
+                        {
+                            context.Fail("Tài khoản của bạn chưa được kích hoạt.");
+                            return;
+                        }
+
+                        if (!user.isApproved)
+                        {
+                            context.Fail("Tài khoản của bạn chưa được duyệt.");
+                            return;
+                        }
+
+                        // Optional: add custom claims
+                        var identity = context.Principal?.Identity as ClaimsIdentity;
+                        identity?.AddClaim(new Claim("IsActive", user.IsActive.ToString()));
+                        identity?.AddClaim(new Claim("IsApproved", user.isApproved.ToString()));
+                    }
+                };
             });
+
 
             return services;
         }

@@ -1,28 +1,21 @@
-﻿@{
+﻿@model Application.DTOs.AppOverviewDTO
+
+@{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var chartData = ViewBag.BookingChartData;
 }
 
 <div style="display: flex; min-height: 100vh;">
-
-    <!-- Sidebar -->
     @Html.Partial("_AdminSidebar")
 
-    <!-- Main Content -->
     <div class="admin-content p-4" style="flex-grow: 1;">
-
-        <!-- Shared image or banner -->
         @Html.Partial("_sharedPic")
-
-        @await Html.PartialAsync("_AppOverview")
-
-
+        @await Html.PartialAsync("_AppOverview", Model) <!-- ✅ Now Model is not null -->
         <canvas id="bookingChart" width="400" height="200"></canvas>
-
     </div>
-
 </div>
+
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

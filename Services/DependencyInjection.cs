@@ -54,6 +54,7 @@ namespace Application
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IAppOverviewService, AppOverviewService>();
             return services;
         }
 

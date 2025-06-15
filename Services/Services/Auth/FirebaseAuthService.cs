@@ -127,7 +127,7 @@ namespace Application.Services.Auth
                 Address = request.Address,
                 FirstName = request.FullName, // You can split into First/Last if needed
                 CreatedAt = DateTime.UtcNow,
-                IsActive = false,
+                IsActive = true,
             };
 
             var result = await _userManager.CreateAsync(newUser, request.Password);
@@ -138,6 +138,59 @@ namespace Application.Services.Auth
             }
 
             await _userManager.AddToRoleAsync(newUser, "User");
+
+            // ✅ Send Email Verification via Firebase
+            await SendEmailVerificationAsync(idToken);
+        }
+
+        public async Task RegisterArtistWithEmailPasswordFireBaseAsync(RegisterEmailRequest request)
+        {
+            var apiKey = _configuration["Firebase:ApiKey"];
+            var signUpUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={apiKey}";
+
+            var payload = new
+            {
+                email = request.Email,
+                password = request.Password,
+                returnSecureToken = true
+            };
+
+            using var httpClient = new HttpClient();
+            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(signUpUrl, content);
+
+            if (!response.IsSuccessStatusCode)
+                throw new BaseException.BadRequestException("registration_failed", "Đăng ký không thành công. Vui lòng thử lại.");
+
+            var responseData = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            var idToken = responseData.RootElement.GetProperty("idToken").GetString();
+
+            // ✅ Check if user already exists
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null)
+                throw new BaseException.BadRequestException("user_exists", "Tài khoản đã tồn tại.");
+
+            // ✅ Create ApplicationUser
+            var newUser = new ApplicationUser
+            {
+                UserName = request.Email.Split('@')[0],
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address,
+                FirstName = request.FullName, // You can split into First/Last if needed
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                isApproved = false,
+            };
+
+            var result = await _userManager.CreateAsync(newUser, request.Password);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new BaseException.BadRequestException("create_user_failed", $"Không thể tạo người dùng: {errors}");
+            }
+
+            await _userManager.AddToRoleAsync(newUser, "Artist");
 
             // ✅ Send Email Verification via Firebase
             await SendEmailVerificationAsync(idToken);
@@ -180,17 +233,37 @@ namespace Application.Services.Auth
             var response = await httpClient.PostAsync(signInUrl, content);
 
             if (!response.IsSuccessStatusCode)
-                throw new BaseException.UnauthorizedException("firebase_login_failed", "Invalid email or password.");
+                throw new BaseException.UnauthorizedException("firebase_login_failed", "Email hoặc mật khẩu không đúng.");
 
             var responseData = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var idToken = responseData.RootElement.GetProperty("idToken").GetString();
+            var firebaseEmail = responseData.RootElement.GetProperty("email").GetString();
 
-            if (string.IsNullOrEmpty(idToken))
-                throw new BaseException.UnauthorizedException("token_missing", "Failed to retrieve token from Firebase.");
+            if (string.IsNullOrEmpty(idToken) || string.IsNullOrEmpty(firebaseEmail))
+                throw new BaseException.UnauthorizedException("token_missing", "Không thể lấy token từ Firebase.");
+
+            // 🔐 Validate against Identity
+            var user = await _userManager.FindByEmailAsync(firebaseEmail);
+            if (user == null || user.IsDeleted)
+                throw new BaseException.UnauthorizedException("user_not_found", "Tài khoản không tồn tại.");
+
+            if (!user.IsActive)
+                throw new BaseException.UnauthorizedException("inactive_user", "Tài khoản của bạn chưa được kích hoạt.");
+
+            if (!user.isApproved)
+                throw new BaseException.UnauthorizedException("unapproved_user", "Tài khoản của bạn chưa được duyệt.");
+
+            // ✅ Optional: Update FCM Token if provided
+            if (!string.IsNullOrEmpty(fcmToken))
+            {
+                user.FcmToken = fcmToken;
+                await _userManager.UpdateAsync(user);
+            }
 
             // 🔁 Continue with Identity sync and return local JWT
             return await SignInWithFirebaseAsync(idToken, fcmToken);
         }
+
 
 
         private async Task<string> GenerateJwtToken(ApplicationUser user, UserManager<ApplicationUser> userManager)

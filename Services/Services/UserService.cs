@@ -247,6 +247,65 @@ namespace Application.Services
 
             return true;
         }
-        
+
+        public async Task<PaginatedList<ResponseUserDTO>> GetUnapprovedArtistsAsync(int pageIndex, int pageSize)
+        {
+            var artistUsers = await _userManager.Users
+                .Where(u => !u.IsDeleted && !u.isApproved)
+                .ToListAsync();
+
+            // Filter users in memory to only those in "Artist" role
+            var unapprovedArtists = new List<ApplicationUser>();
+
+            foreach (var user in artistUsers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains("Artist"))
+                {
+                    unapprovedArtists.Add(user);
+                }
+            }
+
+            var totalCount = unapprovedArtists.Count;
+            var pagedUsers = unapprovedArtists
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var usersDto = _mapper.Map<List<ResponseUserDTO>>(pagedUsers);
+
+            for (int i = 0; i < pagedUsers.Count; i++)
+            {
+                var user = pagedUsers[i];
+                var roles = await _userManager.GetRolesAsync(user);
+                usersDto[i].Roles = roles.Select(r => new RoleDTO { Name = r }).ToList();
+            }
+
+            return new PaginatedList<ResponseUserDTO>(usersDto, totalCount, pageIndex, pageSize);
+        }
+        public async Task<bool> ApproveArtistAsync(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null || user.IsDeleted)
+                throw new NotFoundException("user_not_found", "Người dùng không tồn tại.");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Artist"))
+                throw new BadRequestException("not_artist", "Người dùng không phải là đối tác (Artist).");
+
+            if (user.isApproved)
+                throw new BadRequestException("already_approved", "Người dùng đã được duyệt.");
+
+            user.isApproved = true;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+            return true;
+        }
+
     }
 }

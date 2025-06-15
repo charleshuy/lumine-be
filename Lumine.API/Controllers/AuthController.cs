@@ -74,6 +74,24 @@ namespace Lumine.API.Controllers
             return Ok(new { token = jwt });
         }
 
+        /// <summary>
+        /// Registers a new artist with email and password.
+        /// </summary>
+        /// <param name="request">The registration request containing email and password.</param>
+        /// <returns>A success message if registration is successful.</returns>
+        [HttpPost("register-artist-email")]
+        public async Task<IActionResult> RegisterArtistWithEmail([FromBody] RegisterEmailRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest(new { message = "Email and password are required." });
+            }
+
+            await _firebaseAuthService.RegisterArtistWithEmailPasswordFireBaseAsync(request);
+            return Ok(new { message = "Artist registration successful. Please verify your email." });
+        }
+
+
 
         /// <summary>
         /// Registers a new user with email and password.

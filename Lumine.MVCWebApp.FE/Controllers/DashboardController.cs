@@ -1,5 +1,7 @@
-﻿using Lumine.MVCWebApp.FE.Controllers;
+﻿using Application.DTOs;
+using Lumine.MVCWebApp.FE.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 public class DashboardController : Controller
 {
@@ -15,15 +17,29 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var response = await _httpClient.GetAsync($"{_apiBaseUrlBooking}/status-summary");
-        if (!response.IsSuccessStatusCode)
+        // Fetch overview data
+        var overviewResponse = await _httpClient.GetAsync("https://localhost:7216/api/Overview");
+        AppOverviewDTO? overview = null;
+
+        if (overviewResponse.IsSuccessStatusCode)
         {
-            ViewBag.BookingChartData = "[]";
-            return View();
+            var jsonOverview = await overviewResponse.Content.ReadAsStringAsync();
+            overview = JsonConvert.DeserializeObject<AppOverviewDTO>(jsonOverview);
         }
 
-        var json = await response.Content.ReadAsStringAsync();
-        ViewBag.BookingChartData = json;
-        return View();
+        // Fetch chart data
+        var chartResponse = await _httpClient.GetAsync($"{_apiBaseUrlBooking}/status-summary");
+        if (chartResponse.IsSuccessStatusCode)
+        {
+            var chartJson = await chartResponse.Content.ReadAsStringAsync();
+            ViewBag.BookingChartData = chartJson;
+        }
+        else
+        {
+            ViewBag.BookingChartData = "[]";
+        }
+
+        return View(overview); // Now passes correct model!
     }
+
 }

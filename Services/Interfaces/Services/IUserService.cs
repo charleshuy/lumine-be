@@ -19,5 +19,7 @@ namespace Application.Interfaces.Services
         Task<bool> UpdateCurrentUserProfileAsync(UpdateProfileDTO dto);
         Task<bool> DeleteUserAsync(Guid userId);
         Guid? GetCurrentUserId();
+        Task<PaginatedList<ResponseUserDTO>> GetUnapprovedArtistsAsync(int pageIndex, int pageSize);
+        Task<bool> ApproveArtistAsync(Guid userId);
     }
 }
