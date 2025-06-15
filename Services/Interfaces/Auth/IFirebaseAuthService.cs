@@ -8,5 +8,6 @@ namespace Application.Interfaces.Auth
         Task<string> SignInWithEmailPasswordAsync(string email, string password);
         Task RegisterWithEmailPasswordFireBaseAsync(RegisterEmailRequest request);
         Task<string> LoginWithEmailPasswordFirebaseAsync(string email, string password, string? fcmToken = null);
+        Task RegisterArtistWithEmailPasswordFireBaseAsync(RegisterEmailRequest request);
     }
 }

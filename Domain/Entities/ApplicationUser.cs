@@ -13,7 +13,7 @@ namespace Domain.Entities
         public bool IsDeleted { get; set; } = false;
         public DateTime? DeletedAt { get; set; }
         public bool IsActive { get; set; } = true;
-        public bool isApproved { get; set; } = false;
+        public bool isApproved { get; set; } = true;
         public string? ProfilePicture { get; set; }
     }
 }

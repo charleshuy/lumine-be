@@ -1,0 +1,99 @@
+﻿@model IEnumerable<Application.DTOs.UserDTO.ResponseUserDTO>
+@{
+    ViewData["Title"] = "Approve Artists";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var pageIndex = ViewBag.PageIndex ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div style="display: flex; min-height: 100vh;">
+    @Html.Partial("_AdminSidebar")
+
+    <div class="admin-content p-4" style="flex-grow: 1;">
+        @Html.Partial("_sharedPic")
+
+        <form id="antiForgeryForm">
+            @Html.AntiForgeryToken()
+        </form>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">No unapproved artists found.</div>
+        }
+        else
+        {
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Roles</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var artist in Model)
+                    {
+                        <tr id="row-@artist.Id">
+                            <td>@artist.UserName</td>
+                            <td>@artist.Email</td>
+                            <td>@artist.PhoneNumber</td>
+                            <td>
+                                @if (artist.Roles != null && artist.Roles.Any())
+                                {
+                                    @string.Join(", ", artist.Roles.Select(r => r.Name))
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No roles</span>
+                                }
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-success btn-sm" onclick="approveArtist('@artist.Id')">Approve</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <nav>
+                <ul class="pagination">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == pageIndex ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { pageIndex = i, pageSize = 10 })">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function approveArtist(userId) {
+            if (!confirm("Are you sure you want to approve this artist?")) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch(`/Approves/Approve`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "RequestVerificationToken": token
+                },
+                body: new URLSearchParams({ id: userId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`row-${userId}`).remove();
+                } else {
+                    alert("Failed to approve artist.");
+                }
+            })
+            .catch(() => alert("Error approving artist."));
+        }
+    </script>
+}

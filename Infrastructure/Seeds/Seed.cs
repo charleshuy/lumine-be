@@ -24,7 +24,7 @@ namespace Infrastructure.Seeds
 
         private static async Task SeedRoles(RoleManager<ApplicationRole> roleManager)
         {
-            string[] roleNames = { "Admin", "User" };
+            string[] roleNames = { "Admin", "User", "Artist" };
             foreach (var roleName in roleNames)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
@@ -36,7 +36,7 @@ namespace Infrastructure.Seeds
 
         private static async Task<ApplicationUser> SeedAdminUser(UserManager<ApplicationUser> userManager)
         {
-            var adminEmail = "admin@example.com";
+            var adminEmail = "admin@lumine.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
             if (adminUser == null)

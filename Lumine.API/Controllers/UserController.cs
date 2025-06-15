@@ -116,5 +116,41 @@ namespace Lumine.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of unapproved artists.
+        /// </summary>
+        /// <param name="pageIndex">The index of the page to retrieve.</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A paginated list of unapproved artists.</returns>
+        [HttpGet("unapproved-artists")]
+        public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetUnapprovedArtists(
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            if (pageIndex <= 0 || pageSize <= 0)
+            {
+                return BadRequest("pageIndex and pageSize must be greater than 0.");
+            }
+
+            var result = await _userService.GetUnapprovedArtistsAsync(pageIndex, pageSize);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Approves an artist by their user ID.
+        /// </summary>
+        /// <param name="id">The user ID of the artist to approve.</param>
+        /// <returns>NoContent if successful; otherwise, NotFound.</returns>
+        [HttpPut("approve-artist/{id:guid}")]
+        public async Task<IActionResult> ApproveArtist(Guid id)
+        {
+            var success = await _userService.ApproveArtistAsync(id);
+            if (!success)
+                return NotFound(new { message = $"Artist with ID {id} was not found or already approved." });
+
+            return NoContent();
+        }
+
+
     }
 }
