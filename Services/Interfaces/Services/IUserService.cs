@@ -1,4 +1,5 @@
-﻿using Application.DTOs.UserDTO;
+﻿using Application.DTOs.SearchFilters;
+using Application.DTOs.UserDTO;
 using Application.Paggings;
 
 namespace Application.Interfaces.Services
@@ -8,9 +9,7 @@ namespace Application.Interfaces.Services
         Task<PaginatedList<ResponseUserDTO>> GetPaginatedUsers(
             int pageIndex,
             int pageSize,
-            string? username = null,
-            string? email = null,
-            string? phoneNumber = null);
+            UserSearchFilterDTO? filter = null);
         Task<List<ResponseUserDTO>> GetAllUsersAsync();
         Task<List<CreatedSummaryDTO>> GetUsersCreatedSummaryAsync();
         Task<ResponseUserDTO?> GetUserByIdAsync(Guid userId);

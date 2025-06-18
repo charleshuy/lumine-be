@@ -1,5 +1,5 @@
 ﻿@* Views/Shared/_AdminSidebar.cshtml *@
-<div class="thanh" id="admin-sidebar">
+<div class="thanh collapsed" id="admin-sidebar">
     <button id="sidebarToggle" class="sidebar-toggle-btn">
         <i class="fas fa-bars"></i>
     </button>
@@ -35,13 +35,14 @@
         </a>
 
 
-        <div class="div-wrapper">
+        <a href="@Url.Action("Index", "Services")" class="div-wrapper text-decoration-none text-dark">
             <div class="overlap-2">
                 <div class="rectangle-2"></div>
                 <img class="cost" src="~/img/cost.png" />
-                <div class="text-wrapper-4">Quản lý thanh toán</div>
+                <div class="text-wrapper-4">Quản lý dịch vụ</div>
             </div>
-        </div>
+        </a>
+
 
         <div class="qun-l-ngi-dng-2">
             <div class="overlap-2">

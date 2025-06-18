@@ -1,73 +1,102 @@
 ﻿@model IEnumerable<Application.DTOs.ServiceDTO.ResponseServiceDTO>
 
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Service Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var pageIndex = ViewBag.PageIndex ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
 }
 
-<h1>Index</h1>
+<div style="display: flex; min-height: 100vh;">
+    @Html.Partial("_AdminSidebar")
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Duration)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ArtistName)
-            </th>
-            
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Duration)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceType.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ArtistName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <!-- Main Content -->
+    <div class="admin-content p-4" style="flex-grow: 1;">
+        <!-- Shared Pic -->
+        @Html.Partial("_sharedPic")
+
+        <h2 class="mb-4">Quản lý dịch vụ</h2>
+
+        <!-- Search Form -->
+        <form method="get" class="mb-4">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" name="serviceName" class="form-control" placeholder="Tên dịch vụ"
+                           value="@ViewBag.SearchServiceName" />
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="artistName" class="form-control" placeholder="Tên thợ"
+                           value="@ViewBag.SearchArtistName" />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                </div>
+            </div>
+        </form>
+
+        <p>
+            <a asp-action="Create" class="btn btn-success mb-3">Thêm Dịch Vụ Mới</a>
+        </p>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">Không có dịch vụ nào được tìm thấy.</div>
+        }
+        else
+        {
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Tên dịch vụ</th>
+                        <th>Mô tả</th>
+                        <th>Thời lượng</th>
+                        <th>Giá</th>
+                        <th>Trạng thái</th>
+                        <th>Loại dịch vụ</th>
+                        <th>Tên thợ</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.ServiceName</td>
+                            <td>@item.ServiceDescription</td>
+                            <td>@item.Duration phút</td>
+                            <td>@item.Price VNĐ</td>
+                            <td>@(item.Status?.ToLower() == "true" ? "Hoạt động" : "Tạm ngưng")</td>
+                            <td>@item.ServiceType?.Name</td>
+                            <td>@item.ArtistName</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Chi tiết</a>
+                                @* <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Sửa</a> *@
+                                @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Xóa</a> *@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == pageIndex ? "active" : "")">
+                            <a class="page-link"
+                               href="@Url.Action("Index", new {
+                                   pageIndex = i,
+                                   pageSize = ViewBag.PageSize,
+                                   serviceName = ViewBag.SearchServiceName,
+                                   artistName = ViewBag.SearchArtistName
+                               })">
+                                @i
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>

@@ -20,10 +20,19 @@ namespace Lumine.MVCWebApp.FE.Controllers
         }
 
         // GET: /Accounts
-        public async Task<IActionResult> Index(string? username, string? email, string? phoneNumber, int pageIndex = 1, int pageSize = 10)
+        [HttpGet]
+        public async Task<IActionResult> Index(string? username, string? email, string? phoneNumber, string? role, int pageIndex = 1, int pageSize = 10)
         {
             try
             {
+                // Fetch roles from API
+                var rolesResponse = await _httpClient.GetAsync("https://localhost:7216/api/Role");
+                rolesResponse.EnsureSuccessStatusCode();
+
+                var rolesContent = await rolesResponse.Content.ReadAsStringAsync();
+                var roleList = JsonConvert.DeserializeObject<List<RoleDTO>>(rolesContent);
+
+                // Fetch users
                 var query = new List<string>
         {
             $"pageIndex={pageIndex}",
@@ -39,6 +48,9 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 if (!string.IsNullOrWhiteSpace(phoneNumber))
                     query.Add($"phoneNumber={Uri.EscapeDataString(phoneNumber)}");
 
+                if (!string.IsNullOrWhiteSpace(role))
+                    query.Add($"role={Uri.EscapeDataString(role)}");
+
                 var queryString = string.Join("&", query);
                 var response = await _httpClient.GetAsync($"{_apiBaseUrl}?{queryString}");
                 response.EnsureSuccessStatusCode();
@@ -46,25 +58,35 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 var content = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<PaginatedList<ResponseUserDTO>>(content);
 
+                // Assign ViewBag values
+                ViewBag.Roles = roleList ?? new List<RoleDTO>();
                 ViewBag.SearchUsername = username;
                 ViewBag.SearchEmail = email;
                 ViewBag.SearchPhoneNumber = phoneNumber;
+                ViewBag.SearchRole = role;
+                ViewBag.PageIndex = pageIndex;
+                ViewBag.TotalPages = result?.TotalPages ?? 1;
+                ViewBag.PageSize = pageSize;
 
                 return View(result.Items);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching users.");
+                ViewBag.Roles = new List<RoleDTO>();
                 return View(new List<ResponseUserDTO>());
             }
         }
+
+
+
 
         // GET: /Accounts/All
         public async Task<IActionResult> All()
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/all");
+                var response = await _httpClient.GetAsync("https://localhost:7216/api/Role/all");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();

@@ -72,7 +72,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
 
             if (!string.IsNullOrEmpty(role) && role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
             {
-                return RedirectToAction("Index", "Accounts");
+                return RedirectToAction("Index", "Dashboard");
             }
             else
             {

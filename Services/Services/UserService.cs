@@ -1,4 +1,5 @@
-﻿using Application.DTOs.UserDTO;
+﻿using Application.DTOs.SearchFilters;
+using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Interfaces.UOW;
 using Application.Paggings;
@@ -35,38 +36,58 @@ namespace Application.Services
         public async Task<PaginatedList<ResponseUserDTO>> GetPaginatedUsers(
             int pageIndex,
             int pageSize,
-            string? username = null,
-            string? email = null,
-            string? phoneNumber = null)
+            UserSearchFilterDTO? filter = null)
         {
             var query = _unitOfWork.GetRepository<ApplicationUser>().Entities
                 .Where(u => !u.IsDeleted);
 
-            if (!string.IsNullOrWhiteSpace(username))
-                query = query.Where(u => u.UserName!.Contains(username));
+            if (filter != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filter.Username))
+                    query = query.Where(u => u.UserName!.Contains(filter.Username));
 
-            if (!string.IsNullOrWhiteSpace(email))
-                query = query.Where(u => u.Email!.Contains(email));
+                if (!string.IsNullOrWhiteSpace(filter.Email))
+                    query = query.Where(u => u.Email!.Contains(filter.Email));
 
-            if (!string.IsNullOrWhiteSpace(phoneNumber))
-                query = query.Where(u => u.PhoneNumber!.Contains(phoneNumber));
+                if (!string.IsNullOrWhiteSpace(filter.PhoneNumber))
+                    query = query.Where(u => u.PhoneNumber!.Contains(filter.PhoneNumber));
+            }
 
             query = query.OrderBy(u => u.Email);
 
             var pagedUsers = await _unitOfWork.GetRepository<ApplicationUser>()
                 .GetPagging(query, pageIndex, pageSize);
 
-            var usersDto = _mapper.Map<List<ResponseUserDTO>>(pagedUsers.Items);
+            var filteredUsers = new List<ApplicationUser>();
 
-            for (int i = 0; i < pagedUsers.Items.Count; i++)
+            foreach (var user in pagedUsers.Items)
             {
-                var user = pagedUsers.Items[i];
                 var roles = await _userManager.GetRolesAsync(user);
+                if (filter == null || string.IsNullOrWhiteSpace(filter.Role) ||
+                    roles.Any(r => r.Equals(filter.Role, StringComparison.OrdinalIgnoreCase)))
+                {
+                    filteredUsers.Add(user);
+                }
+            }
+
+
+            var usersDto = _mapper.Map<List<ResponseUserDTO>>(filteredUsers);
+
+            for (int i = 0; i < filteredUsers.Count; i++)
+            {
+                var roles = await _userManager.GetRolesAsync(filteredUsers[i]);
                 usersDto[i].Roles = roles.Select(r => new RoleDTO { Name = r }).ToList();
             }
 
-            return new PaginatedList<ResponseUserDTO>(usersDto, pagedUsers.TotalCount, pageIndex, pageSize);
+            return new PaginatedList<ResponseUserDTO>(
+                usersDto,
+                filteredUsers.Count,
+                pageIndex,
+                pageSize
+            );
         }
+
+
 
         public async Task<List<ResponseUserDTO>> GetAllUsersAsync()
         {
