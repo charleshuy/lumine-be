@@ -7,16 +7,11 @@
 }
 
 <div style="display: flex; min-height: 100vh;">
-
-    
-        @Html.Partial("_AdminSidebar")
-
+    @Html.Partial("_AdminSidebar")
 
     <!-- Main Content -->
     <div class="admin-content p-4" style="flex-grow: 1;">
-        <!-- Your shared pic above main content -->
         @Html.Partial("_sharedPic")
-
 
         <!-- Search Form -->
         <form method="get" class="mb-4">
@@ -34,6 +29,18 @@
                            value="@ViewBag.SearchPhoneNumber" />
                 </div>
                 <div class="col-md-3">
+                    <select name="role" class="form-control">
+                        <option value="">-- All Roles --</option>
+                        @foreach (var r in (ViewBag.Roles as List<Application.DTOs.UserDTO.RoleDTO>) ?? new List<Application.DTOs.UserDTO.RoleDTO>())
+                        {
+                            <option value="@r.Name" selected="@(ViewBag.SearchRole?.ToString() == r.Name ? "selected" : null)">
+                                @r.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3 mt-2">
                     <button type="submit" class="btn btn-primary w-100">Search</button>
                 </div>
             </div>
@@ -75,8 +82,6 @@
                             </td>
                             <td>
                                 <a asp-action="Details" asp-route-id="@user.Id" class="btn btn-info btn-sm">Details</a>
-                                <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning btn-sm">Edit</a>
-                                <a asp-action="Delete" asp-route-id="@user.Id" class="btn btn-danger btn-sm">Delete</a>
                             </td>
                         </tr>
                     }
@@ -95,7 +100,8 @@
                                    pageSize = ViewBag.PageSize,
                                    username = ViewBag.SearchUsername,
                                    email = ViewBag.SearchEmail,
-                                   phoneNumber = ViewBag.SearchPhoneNumber
+                                   phoneNumber = ViewBag.SearchPhoneNumber,
+                                   role = ViewBag.SearchRole
                                })">
                                 @i
                             </a>
@@ -105,5 +111,4 @@
             </nav>
         }
     </div>
-
 </div>

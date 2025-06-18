@@ -1,4 +1,5 @@
-﻿using Application.DTOs.UserDTO;
+﻿using Application.DTOs.SearchFilters;
+using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Paggings;
 using Microsoft.AspNetCore.Mvc;
@@ -25,28 +26,27 @@ namespace Lumine.API.Controllers
 
         /// <summary>  
         /// Retrieves a paginated list of users based on the provided filters.  
-        /// </summary>  
+        /// </summary>
+        /// <param name="filter"></param>  
         /// <param name="pageIndex">The index of the page to retrieve.</param>  
         /// <param name="pageSize">The number of items per page.</param>  
-        /// <param name="username">Optional filter for username.</param>  
-        /// <param name="email">Optional filter for email.</param>  
-        /// <param name="phoneNumber">Optional filter for phone number.</param>  
         /// <returns>A paginated list of users.</returns>  
         [HttpGet]
         public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetUsers(
+            [FromQuery] UserSearchFilterDTO filter,
             [FromQuery] int pageIndex = 1,
-            [FromQuery] int pageSize = 10,
-            [FromQuery] string? username = null,
-            [FromQuery] string? email = null,
-            [FromQuery] string? phoneNumber = null)
+            [FromQuery] int pageSize = 10)
         {
             if (pageIndex <= 0 || pageSize <= 0)
             {
-                return BadRequest("pageNumber and pageSize must be greater than 0.");
+                return BadRequest("pageIndex and pageSize must be greater than 0.");
             }
-            var result = await _userService.GetPaginatedUsers(pageIndex, pageSize, username, email, phoneNumber);
+
+            var result = await _userService.GetPaginatedUsers(pageIndex, pageSize, filter);
             return Ok(result);
         }
+
+
 
         /// <summary>  
         /// Retrieves a full list of all users without pagination.  
