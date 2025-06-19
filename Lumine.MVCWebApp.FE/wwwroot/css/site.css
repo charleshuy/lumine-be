@@ -29,3 +29,50 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.custom-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to right, #fbe4f7, #fdf6fb);
+    padding: 20px 50px; /* Increased vertical padding */
+    font-family: 'Segoe UI', sans-serif;
+    border-bottom: 1px solid #ccc;
+    height: 100px; /* Set taller height */
+    position: relative;
+}
+
+.navbar-left, .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 30px; /* More spacing between items */
+}
+
+.navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.navbar-logo {
+    height: 80px; /* Taller logo */
+    width: auto;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+    .nav-link:hover {
+        color: #e91e63;
+    }
+
+.nav-icon {
+    font-size: 20px;
+    color: #000;
+    text-decoration: none;
+    margin-right: 5px;
+}

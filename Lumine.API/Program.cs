@@ -1,7 +1,5 @@
-﻿using Infrastructure.Seeds;
-using Lumine.API;
+﻿using Lumine.API;
 using Lumine.API.Middlewares;
-using Microsoft.OpenApi.Models;
 
 /// <summary>
 /// The entry point of the Lumine API application.
@@ -42,8 +40,10 @@ public class Program
         //    await Seed.Initialize(services);
         //}
 
-        // ✅ Enable Swagger in Development
-        if (app.Environment.IsDevelopment())
+
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
         {
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -52,7 +52,7 @@ public class Program
             });
         }
 
-        
+
         app.UseHttpsRedirection();
         app.UseCors("AllowAll");
         app.UseMiddleware<ExceptionMiddleware>();
