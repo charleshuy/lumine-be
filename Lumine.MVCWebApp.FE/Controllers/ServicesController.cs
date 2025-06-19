@@ -1,6 +1,8 @@
 ﻿using Application.DTOs.ServiceDTO;
 using Application.Paggings;
+using Lumine.MVCWebApp.FE;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
@@ -11,12 +13,16 @@ namespace Lumine.MVC.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ServicesController> _logger;
-        private readonly string _apiBaseUrl = "https://localhost:7216/api/Service"; // Adjust if needed
+        private readonly string _apiBaseUrl;
 
-        public ServicesController(IHttpClientFactory httpClientFactory, ILogger<ServicesController> logger)
+        public ServicesController(
+            IHttpClientFactory httpClientFactory,
+            ILogger<ServicesController> logger,
+            IOptions<ApiSettings> apiSettings)
         {
             _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
+            _apiBaseUrl = $"{apiSettings.Value.BaseUrl}/Service";
         }
 
         public async Task<IActionResult> Index()

@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Lumine.API/firebase-adminsdk.json
 /Lumine.API/appsettings.json
+/Lumine.MVCWebApp.FE/appsettings.json

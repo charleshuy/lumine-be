@@ -1,106 +1,148 @@
 ﻿using Application.DTOs;
+using Application.DTOs.ServiceDTO;
 using Application.DTOs.UserDTO;
 using Application.Paggings;
+using Lumine.MVCWebApp.FE;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 
 namespace Lumine.MVCWebApp.FE.Controllers
 {
     [Authorize]
     public class ProfileController : Controller
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiBaseUrl = "https://localhost:7216/";
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<ProfileController> _logger;
+        private readonly string _apiBaseUrl;
 
-        public ProfileController(IHttpClientFactory httpClientFactory)
+        public ProfileController(
+            IHttpClientFactory httpClientFactory,
+            ILogger<ProfileController> logger,
+            IOptions<ApiSettings> apiSettings)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClientFactory.CreateClient();
+            _logger = logger;
+            _apiBaseUrl = apiSettings.Value.BaseUrl;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int bookingPage = 1, int servicePage = 1)
         {
-            var token = Request.Cookies["TokenString"];
-            if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Auth");
-
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_apiBaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            // Fetch profile
-            var response = await client.GetAsync("api/auth/profile");
-            if (!response.IsSuccessStatusCode)
-                return RedirectToAction("Login", "Auth");
-
-            var json = await response.Content.ReadAsStringAsync();
-            var profile = JsonSerializer.Deserialize<ResponseUserDTO>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            // Fetch bookings
-            var bookingsResponse = await client.GetAsync("api/Booking/customer?pageIndex=1&pageSize=5");
-            if (bookingsResponse.IsSuccessStatusCode)
+            try
             {
-                var bookingsJson = await bookingsResponse.Content.ReadAsStringAsync();
-                var bookings = JsonSerializer.Deserialize<PaginatedList<BookingDTO>>(bookingsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                ViewBag.Bookings = bookings;
+                var token = Request.Cookies["TokenString"];
+                if (string.IsNullOrEmpty(token))
+                    return RedirectToAction("Login", "Auth");
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                // Get profile
+                var profileResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/auth/profile");
+                if (!profileResponse.IsSuccessStatusCode)
+                    return RedirectToAction("Login", "Auth");
+
+                var profileJson = await profileResponse.Content.ReadAsStringAsync();
+                var profile = JsonConvert.DeserializeObject<ResponseUserDTO>(profileJson);
+
+                if (profile == null)
+                    return RedirectToAction("Login", "Auth");
+
+                var roles = profile.Roles.Select(r => r.Name).ToList();
+
+                if (roles.Contains("User"))
+                {
+                    var bookingsResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Booking/customer?pageIndex={bookingPage}&pageSize=5");
+                    if (bookingsResponse.IsSuccessStatusCode)
+                    {
+                        var bookingsJson = await bookingsResponse.Content.ReadAsStringAsync();
+                        var bookings = JsonConvert.DeserializeObject<PaginatedList<BookingDTO>>(bookingsJson);
+                        ViewBag.Bookings = bookings;
+                    }
+                }
+                else if (roles.Contains("Artist"))
+                {
+                    var servicesResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Service/by-artist?pageIndex={servicePage}&pageSize=3");
+                    if (servicesResponse.IsSuccessStatusCode)
+                    {
+                        var servicesJson = await servicesResponse.Content.ReadAsStringAsync();
+                        var services = JsonConvert.DeserializeObject<PaginatedList<ResponseServiceDTO>>(servicesJson);
+                        ViewBag.Services = services;
+                    }
+                }
+
+                return View(profile);
             }
-
-            return View(profile);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load profile.");
+                TempData["Error"] = "Không thể tải thông tin hồ sơ.";
+                return View();
+            }
         }
-
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(UpdateProfileDTO dto)
         {
-            var token = Request.Cookies["TokenString"];
-            if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Auth");
-
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_apiBaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var jsonContent = new StringContent(JsonSerializer.Serialize(dto), Encoding.UTF8, "application/json");
-            var response = await client.PutAsync("api/auth/profile", jsonContent);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                TempData["Error"] = "Cập nhật thất bại. Vui lòng thử lại.";
+                var token = Request.Cookies["TokenString"];
+                if (string.IsNullOrEmpty(token))
+                    return RedirectToAction("Login", "Auth");
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var content = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PutAsync($"{_apiBaseUrl}/auth/profile", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorMsg = await response.Content.ReadAsStringAsync();
+                    TempData["Error"] = $"Cập nhật thất bại: {errorMsg}";
+                    return RedirectToAction("Index");
+                }
+
+                TempData["Success"] = "Cập nhật thành công!";
                 return RedirectToAction("Index");
             }
-
-            TempData["Success"] = "Cập nhật thành công!";
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Profile update failed.");
+                TempData["Error"] = "Đã xảy ra lỗi khi cập nhật thông tin.";
+                return RedirectToAction("Index");
+            }
         }
 
         public async Task<IActionResult> MyBookings()
         {
-            var token = Request.Cookies["TokenString"];
-            if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Auth");
-
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_apiBaseUrl);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            var response = await client.GetAsync("api/Booking/customer?pageIndex=1&pageSize=10");
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                TempData["Error"] = "Không thể tải danh sách lịch hẹn.";
+                var token = Request.Cookies["TokenString"];
+                if (string.IsNullOrEmpty(token))
+                    return RedirectToAction("Login", "Auth");
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/Booking/customer?pageIndex=1&pageSize=10");
+                if (!response.IsSuccessStatusCode)
+                {
+                    TempData["Error"] = "Không thể tải danh sách lịch hẹn.";
+                    return RedirectToAction("Index");
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var bookings = JsonConvert.DeserializeObject<PaginatedList<BookingDTO>>(json);
+                return View(bookings);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving bookings.");
+                TempData["Error"] = "Đã xảy ra lỗi khi tải lịch hẹn.";
                 return RedirectToAction("Index");
             }
-
-            var json = await response.Content.ReadAsStringAsync();
-
-            var bookings = JsonSerializer.Deserialize<PaginatedList<BookingDTO>>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            return View(bookings);
         }
-
     }
 }

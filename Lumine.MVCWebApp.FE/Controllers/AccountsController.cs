@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.UserDTO;
 using Application.Paggings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
@@ -11,54 +12,52 @@ namespace Lumine.MVCWebApp.FE.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<AccountsController> _logger;
-        private readonly string _apiBaseUrl = "https://localhost:7216/api/User";
+        private readonly string _userApiBase;
+        private readonly string _roleApiBase;
 
-        public AccountsController(IHttpClientFactory httpClientFactory, ILogger<AccountsController> logger)
+        public AccountsController(
+            IHttpClientFactory httpClientFactory,
+            ILogger<AccountsController> logger,
+            IOptions<ApiSettings> apiSettings)
         {
             _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
+            var baseUrl = apiSettings.Value.BaseUrl.TrimEnd('/');
+            _userApiBase = $"{baseUrl}/User";
+            _roleApiBase = $"{baseUrl}/Role";
         }
 
-        // GET: /Accounts
         [HttpGet]
         public async Task<IActionResult> Index(string? username, string? email, string? phoneNumber, string? role, int pageIndex = 1, int pageSize = 10)
         {
             try
             {
-                // Fetch roles from API
-                var rolesResponse = await _httpClient.GetAsync("https://localhost:7216/api/Role");
+                // Fetch roles
+                var rolesResponse = await _httpClient.GetAsync($"{_roleApiBase}");
                 rolesResponse.EnsureSuccessStatusCode();
 
                 var rolesContent = await rolesResponse.Content.ReadAsStringAsync();
                 var roleList = JsonConvert.DeserializeObject<List<RoleDTO>>(rolesContent);
 
-                // Fetch users
+                // Build query string
                 var query = new List<string>
-        {
-            $"pageIndex={pageIndex}",
-            $"pageSize={pageSize}"
-        };
+                {
+                    $"pageIndex={pageIndex}",
+                    $"pageSize={pageSize}"
+                };
 
-                if (!string.IsNullOrWhiteSpace(username))
-                    query.Add($"username={Uri.EscapeDataString(username)}");
-
-                if (!string.IsNullOrWhiteSpace(email))
-                    query.Add($"email={Uri.EscapeDataString(email)}");
-
-                if (!string.IsNullOrWhiteSpace(phoneNumber))
-                    query.Add($"phoneNumber={Uri.EscapeDataString(phoneNumber)}");
-
-                if (!string.IsNullOrWhiteSpace(role))
-                    query.Add($"role={Uri.EscapeDataString(role)}");
+                if (!string.IsNullOrWhiteSpace(username)) query.Add($"username={Uri.EscapeDataString(username)}");
+                if (!string.IsNullOrWhiteSpace(email)) query.Add($"email={Uri.EscapeDataString(email)}");
+                if (!string.IsNullOrWhiteSpace(phoneNumber)) query.Add($"phoneNumber={Uri.EscapeDataString(phoneNumber)}");
+                if (!string.IsNullOrWhiteSpace(role)) query.Add($"role={Uri.EscapeDataString(role)}");
 
                 var queryString = string.Join("&", query);
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}?{queryString}");
+                var response = await _httpClient.GetAsync($"{_userApiBase}?{queryString}");
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<PaginatedList<ResponseUserDTO>>(content);
 
-                // Assign ViewBag values
                 ViewBag.Roles = roleList ?? new List<RoleDTO>();
                 ViewBag.SearchUsername = username;
                 ViewBag.SearchEmail = email;
@@ -68,7 +67,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 ViewBag.TotalPages = result?.TotalPages ?? 1;
                 ViewBag.PageSize = pageSize;
 
-                return View(result.Items);
+                return View(result?.Items ?? new List<ResponseUserDTO>());
             }
             catch (Exception ex)
             {
@@ -78,15 +77,11 @@ namespace Lumine.MVCWebApp.FE.Controllers
             }
         }
 
-
-
-
-        // GET: /Accounts/All
         public async Task<IActionResult> All()
         {
             try
             {
-                var response = await _httpClient.GetAsync("https://localhost:7216/api/Role/all");
+                var response = await _httpClient.GetAsync($"{_roleApiBase}/all");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -101,31 +96,22 @@ namespace Lumine.MVCWebApp.FE.Controllers
             }
         }
 
-
-
-        // GET: /Accounts/Details/{id}
         public async Task<IActionResult> Details(Guid id)
         {
-            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
+            var response = await _httpClient.GetAsync($"{_userApiBase}/{id}");
             if (!response.IsSuccessStatusCode)
-            {
                 return NotFound();
-            }
 
             var json = await response.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<ResponseUserDTO>(json);
-
             return View(user);
         }
 
-        // GET: /Accounts/Edit/{id}
         public async Task<IActionResult> Edit(Guid id)
         {
-            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
+            var response = await _httpClient.GetAsync($"{_userApiBase}/{id}");
             if (!response.IsSuccessStatusCode)
-            {
                 return NotFound();
-            }
 
             var json = await response.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<ResponseUserDTO>(json);
@@ -134,14 +120,13 @@ namespace Lumine.MVCWebApp.FE.Controllers
             {
                 UserName = user.UserName,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                // include other editable fields
+                PhoneNumber = user.PhoneNumber
+                // Add other editable fields if needed
             };
 
             return View(updateDto);
         }
 
-        // POST: /Accounts/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, UpdateUserDTO dto)
@@ -150,21 +135,19 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 return View(dto);
 
             var jsonContent = new StringContent(JsonConvert.SerializeObject(dto), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"{_apiBaseUrl}/{id}", jsonContent);
+            var response = await _httpClient.PutAsync($"{_userApiBase}/{id}", jsonContent);
 
             if (response.IsSuccessStatusCode)
                 return RedirectToAction(nameof(Index));
 
             var errorMsg = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError(string.Empty, errorMsg);
-
             return View(dto);
         }
 
-        // GET: /Accounts/Delete/{id}
         public async Task<IActionResult> Delete(Guid id)
         {
-            var response = await _httpClient.GetAsync($"{_apiBaseUrl}/{id}");
+            var response = await _httpClient.GetAsync($"{_userApiBase}/{id}");
             if (!response.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Failed to load user.";
@@ -180,7 +163,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var response = await _httpClient.DeleteAsync($"{_apiBaseUrl}/{id}");
+            var response = await _httpClient.DeleteAsync($"{_userApiBase}/{id}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -191,7 +174,5 @@ namespace Lumine.MVCWebApp.FE.Controllers
             TempData["Error"] = "Failed to delete user.";
             return RedirectToAction(nameof(Delete), new { id });
         }
-
-
     }
 }

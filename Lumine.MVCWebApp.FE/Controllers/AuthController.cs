@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
@@ -12,20 +13,15 @@ namespace Lumine.MVCWebApp.FE.Controllers
     public class AuthController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration _configuration;
         private readonly string _apiBaseUrl;
 
-        public AuthController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public AuthController(IHttpClientFactory httpClientFactory, IOptions<ApiSettings> apiSettings)
         {
             _httpClientFactory = httpClientFactory;
-            _configuration = configuration;
-            _apiBaseUrl = configuration["ApiBaseUrl"] ?? "https://localhost:7216/api/";
+            _apiBaseUrl = apiSettings.Value.BaseUrl ?? "https://localhost:7216/";
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
         [HttpPost]
         public async Task<IActionResult> Login(AdminLoginRequest request)
@@ -34,10 +30,9 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 return View(request);
 
             var client = _httpClientFactory.CreateClient();
-
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{_apiBaseUrl}auth/admin-login", content);
+            var response = await client.PostAsync($"{_apiBaseUrl}/auth/admin-login", content);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -70,20 +65,12 @@ namespace Lumine.MVCWebApp.FE.Controllers
             Response.Cookies.Append("UserName", email);
             Response.Cookies.Append("Role", role ?? "");
 
-            if (!string.IsNullOrEmpty(role) && role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-            {
-                return RedirectToAction("Index", "Dashboard");
-            }
-            else
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            return role?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true
+                ? RedirectToAction("Index", "Dashboard")
+                : RedirectToAction("Index", "Home");
         }
 
-        public IActionResult LoginUser()
-        {
-            return View();
-        }
+        public IActionResult LoginUser() => View();
 
         [HttpPost]
         public async Task<IActionResult> LoginUser(AdminLoginRequest request)
@@ -92,10 +79,9 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 return View(request);
 
             var client = _httpClientFactory.CreateClient();
-
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{_apiBaseUrl}auth/email-firebase-login", content);
+            var response = await client.PostAsync($"{_apiBaseUrl}/auth/email-firebase-login", content);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -113,7 +99,6 @@ namespace Lumine.MVCWebApp.FE.Controllers
             var role = jwtToken.Claims.FirstOrDefault(c =>
                 c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
 
-
             var email = jwtToken.Claims.FirstOrDefault(c =>
                 c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value ?? "";
 
@@ -129,22 +114,13 @@ namespace Lumine.MVCWebApp.FE.Controllers
             Response.Cookies.Append("UserName", email);
             Response.Cookies.Append("Role", role ?? "");
 
-            if (!string.IsNullOrEmpty(role) && role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
-            {
-                return RedirectToAction("Index", "Accounts");
-            }
-            else
-            {
-                return RedirectToAction("Index", "Home");
-            }
+            return role?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true
+                ? RedirectToAction("Index", "Accounts")
+                : RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
+        public IActionResult Register() => View();
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterEmailRequest request)
@@ -153,15 +129,13 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 return View(request);
 
             var client = _httpClientFactory.CreateClient();
-
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{_apiBaseUrl}auth/register-email", content);
+            var response = await client.PostAsync($"{_apiBaseUrl}/auth/register-email", content);
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-
                 try
                 {
                     var errorDoc = JsonDocument.Parse(errorContent);
@@ -169,14 +143,9 @@ namespace Lumine.MVCWebApp.FE.Controllers
                     {
                         foreach (var prop in errorsElement.EnumerateObject())
                         {
-                            var field = prop.Name;
                             foreach (var error in prop.Value.EnumerateArray())
                             {
-                                var errorMessage = error.GetString();
-                                if (field == string.Empty)
-                                    ModelState.AddModelError(string.Empty, errorMessage ?? "An error occurred.");
-                                else
-                                    ModelState.AddModelError(field, errorMessage ?? "An error occurred.");
+                                ModelState.AddModelError(prop.Name, error.GetString() ?? "An error occurred.");
                             }
                         }
                     }
@@ -200,11 +169,6 @@ namespace Lumine.MVCWebApp.FE.Controllers
             ViewBag.Message = "Registration successful. Please verify your email before logging in.";
             return View();
         }
-
-
-
-
-
 
         public async Task<IActionResult> Logout()
         {
