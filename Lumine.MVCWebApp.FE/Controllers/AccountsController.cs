@@ -11,7 +11,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<AccountsController> _logger;
-        private readonly string _apiBaseUrl = "https://localhost:7216/api/User"; // adjust if different
+        private readonly string _apiBaseUrl = "https://localhost:7216/api/User";
 
         public AccountsController(IHttpClientFactory httpClientFactory, ILogger<AccountsController> logger)
         {

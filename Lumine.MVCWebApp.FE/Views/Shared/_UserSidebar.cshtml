@@ -1,0 +1,40 @@
+﻿@* Views/Shared/_UserSidebar.cshtml *@
+<div class="user-sidebar collapsed" id="user-sidebar">
+    <button id="userSidebarToggle" class="sidebar-toggle-btn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-content">
+        <img class="sidebar-logo" src="~/img/logo01.png" alt="Lumine Logo" />
+        <div class="sidebar-title">Lumine</div>
+
+        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            var userName = Context.User.Identity.Name ?? Context.Request.Cookies["UserName"] ?? "Người dùng";
+
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>@userName</span>
+            </div>
+
+            <a class="sidebar-link" href="/Profile">
+                <i class="fas fa-id-card"></i> Hồ sơ
+            </a>
+            <a class="sidebar-link" href="/Bookings">
+                <i class="fas fa-calendar-check"></i> Lịch đặt
+            </a>
+            <a class="sidebar-link" asp-controller="Auth" asp-action="Logout">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </a>
+        }
+        else
+        {
+            <a class="sidebar-link" asp-controller="Auth" asp-action="Login">
+                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+            </a>
+            <a class="sidebar-link" asp-controller="Auth" asp-action="Register">
+                <i class="fas fa-user-plus"></i> Đăng ký
+            </a>
+        }
+    </div>
+</div>

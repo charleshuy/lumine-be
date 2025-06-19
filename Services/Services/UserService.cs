@@ -242,8 +242,8 @@ namespace Application.Services
             if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
                 user.PhoneNumber = dto.PhoneNumber;
 
-            if (!string.IsNullOrWhiteSpace(dto.ProfilePicture))
-                user.ProfilePicture = dto.ProfilePicture;
+            if (!string.IsNullOrWhiteSpace(dto.Address))
+                user.Address = dto.Address; // ✅ Add this
 
             user.UpdatedAt = DateTime.UtcNow;
 
@@ -253,6 +253,7 @@ namespace Application.Services
 
             return true;
         }
+
         public async Task<bool> DeleteUserAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());

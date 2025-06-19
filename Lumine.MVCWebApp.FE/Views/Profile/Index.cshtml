@@ -1,0 +1,157 @@
+﻿@model Application.DTOs.UserDTO.ResponseUserDTO
+@using Application.Paggings
+@using Application.DTOs
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("_UserSidebar")
+
+<form asp-action="Update" method="post" id="profileForm">
+    <div class="container mt-5 profile-container position-relative">
+        <div class="star-icon">★</div>
+        <div class="profile-header">XIN CHÀO <span>“@Model.FirstName @Model.LastName” xinh đẹp</span></div>
+        <p class="profile-subtext">Profile của bạn có thể cập nhật lúc nào cũng được nhé</p>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="profile-img-container">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-avatar.png") : Model.ProfilePicture)" alt="Profile Picture" class="img-fluid" />
+                </div>
+                <button type="button" class="btn btn-sm btn-light-pink w-100 mb-3">
+                    <i class="bi bi-pencil-fill"></i> Thay đổi ảnh
+                </button>
+            </div>
+
+
+            <div class="col-md-8">
+
+                <ul class="nav nav-pills nav-custom mb-4" id="profileTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-tab="info">Thông tin tài khoản</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-tab="bookings">Lịch sử đặt lịch</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Đổi mật khẩu</a>
+                    </li>
+                </ul>
+
+                <!-- Info Section -->
+                <div id="info-section">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <label class="info-label">Họ và tên:</label>
+                            <div class="info-value view-mode">@Model.FirstName @Model.LastName</div>
+                            <input type="text" name="FirstName" class="form-control edit-mode d-none" value="@Model.FirstName" />
+                            <input type="text" name="LastName" class="form-control edit-mode d-none mt-1" value="@Model.LastName" />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="info-label">Tên người dùng:</label>
+                            <div class="info-value">@Model.UserName</div>
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Email:</label>
+                            <div class="info-value view-mode">@Model.Email</div>
+                            <input type="email" class="form-control edit-mode d-none" value="@Model.Email" disabled />
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Địa chỉ:</label>
+                            <div class="info-value view-mode">@Model.Address</div>
+                            <input type="text" name="Address" class="form-control edit-mode d-none" value="@Model.Address" />
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Số điện thoại:</label>
+                            <div class="info-value view-mode">@Model.PhoneNumber</div>
+                            <input type="text" name="PhoneNumber" class="form-control edit-mode d-none" value="@Model.PhoneNumber" />
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Ngày tạo:</label>
+                            <div class="info-value">@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Quyền:</label>
+                            <div class="info-value">
+                                @(Model.Roles != null && Model.Roles.Any() ? string.Join(", ", Model.Roles.Select(r => r.Name)) : "Không có quyền")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-black" id="toggleEdit">Thay thông tin</button>
+                        <a href="#" class="btn btn-light-pink">Liên hệ</a>
+                    </div>
+                </div>
+
+                <!-- Booking Section -->
+                <div id="bookings-section" class="d-none mt-4">
+                    @if (ViewBag.Bookings != null && ((PaginatedList<BookingDTO>)ViewBag.Bookings).Items.Any())
+                    {
+                        var bookings = (PaginatedList<BookingDTO>)ViewBag.Bookings;
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ngày đặt</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thợ làm</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var booking in bookings.Items)
+                                {
+                                    <tr>
+                                        <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
+                                        <td>@booking.Status</td>
+                                        <td>@booking.Service?.ArtistName</td>
+                                        <td>@booking.Service?.ServiceName</td>
+                                        <td>@booking.TotalPrice.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">Bạn chưa có lịch hẹn nào.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        let editMode = false;
+
+        document.getElementById('toggleEdit').addEventListener('click', function () {
+            editMode = !editMode;
+
+            document.querySelectorAll('.view-mode').forEach(el => el.classList.toggle('d-none'));
+            document.querySelectorAll('.edit-mode').forEach(el => el.classList.toggle('d-none'));
+            this.textContent = editMode ? 'Lưu thông tin' : 'Thay thông tin';
+
+            if (!editMode) {
+                document.getElementById('profileForm').submit();
+            }
+        });
+
+        // Toggle tabs
+        document.querySelectorAll('#profileTabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelectorAll('#profileTabs .nav-link').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const selected = this.getAttribute('data-tab');
+                document.getElementById('info-section').classList.toggle('d-none', selected !== 'info');
+                document.getElementById('bookings-section').classList.toggle('d-none', selected !== 'bookings');
+            });
+        });
+    </script>
+}
