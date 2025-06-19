@@ -113,6 +113,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
             var role = jwtToken.Claims.FirstOrDefault(c =>
                 c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
 
+
             var email = jwtToken.Claims.FirstOrDefault(c =>
                 c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value ?? "";
 
