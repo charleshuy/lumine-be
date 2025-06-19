@@ -120,12 +120,6 @@ namespace Lumine.API.Controllers
         /// <param name="startDate">Optional filter by start date.</param>  
         /// <param name="endDate">Optional filter by end date.</param>  
         /// <param name="status">Optional filter by booking status. 
-        /// /// Status to update:
-        /// 0 = Pending,
-        /// 1 = Confirmed,
-        /// 2 = Canceled,
-        /// 3 = Completed
-        /// </param>  
         /// <returns>Paginated list of bookings for the customer.</returns>  
         [HttpGet("customer")]
 

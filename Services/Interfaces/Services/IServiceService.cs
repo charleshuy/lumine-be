@@ -13,7 +13,7 @@ namespace Application.Interfaces.Services
             decimal? price = null,
             ServiceStatus? status = null,
             Guid? artistId = null);
-
+        Task<ResponseServiceDTO> GetByIdAsync(Guid id);
         Task<PaginatedList<ResponseServiceDTO>> GetServicesForArtistAsync(
             int pageIndex,
             int pageSize,

@@ -1,24 +1,30 @@
 ﻿using Application.DTOs;
 using Lumine.MVCWebApp.FE.Controllers;
+using Lumine.MVCWebApp.FE;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 public class DashboardController : Controller
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AccountsController> _logger;
-    private readonly string _apiBaseUrlBooking = "https://localhost:7216/api/Booking";
+    private readonly string _apiBaseUrl;
 
-    public DashboardController(IHttpClientFactory httpClientFactory, ILogger<AccountsController> logger)
+    public DashboardController(
+        IHttpClientFactory httpClientFactory,
+        ILogger<AccountsController> logger,
+        IOptions<ApiSettings> apiSettings)
     {
         _httpClient = httpClientFactory.CreateClient();
         _logger = logger;
+        _apiBaseUrl = apiSettings.Value.BaseUrl ?? "https://localhost:7216/";
     }
 
     public async Task<IActionResult> Index()
     {
         // Fetch overview data
-        var overviewResponse = await _httpClient.GetAsync("https://localhost:7216/api/Overview");
+        var overviewResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Overview");
         AppOverviewDTO? overview = null;
 
         if (overviewResponse.IsSuccessStatusCode)
@@ -28,7 +34,7 @@ public class DashboardController : Controller
         }
 
         // Fetch chart data
-        var chartResponse = await _httpClient.GetAsync($"{_apiBaseUrlBooking}/status-summary");
+        var chartResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Booking/status-summary");
         if (chartResponse.IsSuccessStatusCode)
         {
             var chartJson = await chartResponse.Content.ReadAsStringAsync();
@@ -39,7 +45,6 @@ public class DashboardController : Controller
             ViewBag.BookingChartData = "[]";
         }
 
-        return View(overview); // Now passes correct model!
+        return View(overview);
     }
-
 }

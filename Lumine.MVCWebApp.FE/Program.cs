@@ -1,4 +1,5 @@
 using Infrastructure;
+using Lumine.MVCWebApp.FE;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 
 builder.Services.AddHttpClient();
+
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
 builder.Services.AddAuthentication()
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>

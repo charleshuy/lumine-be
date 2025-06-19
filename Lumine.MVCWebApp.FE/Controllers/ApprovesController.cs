@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.UserDTO;
 using Application.Paggings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Lumine.MVCWebApp.FE.Controllers
@@ -9,12 +10,13 @@ namespace Lumine.MVCWebApp.FE.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ApprovesController> _logger;
-        private readonly string _apiBaseUrl = "https://localhost:7216/api/User"; // Adjust if needed
+        private readonly string _apiBaseUrl;
 
-        public ApprovesController(IHttpClientFactory httpClientFactory, ILogger<ApprovesController> logger)
+        public ApprovesController(IHttpClientFactory httpClientFactory, ILogger<ApprovesController> logger, IOptions<ApiSettings> apiSettings)
         {
             _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
+            _apiBaseUrl = $"{apiSettings.Value.BaseUrl}/User";
         }
 
         public async Task<IActionResult> Index(int pageIndex = 1, int pageSize = 10)

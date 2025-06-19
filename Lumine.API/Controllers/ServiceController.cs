@@ -56,6 +56,16 @@ namespace Lumine.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Get a service by its ID.
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ResponseServiceDTO>> GetById(Guid id)
+        {
+            var service = await _serviceService.GetByIdAsync(id);
+            return Ok(service);
+        }
+
         /// <summary>  
         /// Retrieves all services for an artist with pagination and optional filtering by service name, price, and status.  
         /// </summary>  
@@ -106,6 +116,7 @@ namespace Lumine.API.Controllers
         /// Creates a new service.
         /// </summary>
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<ActionResult<ResponseServiceDTO>> Create([FromBody] CreateServiceDTO dto)
         {
             if (!ModelState.IsValid)
@@ -139,13 +150,10 @@ namespace Lumine.API.Controllers
         /// <returns>No content if the update is successful.</returns>  
         [Authorize(AuthenticationSchemes = "Jwt", Roles = "Artist")]
         [HttpPut("by-artist/{id}")]
-        public async Task<IActionResult> UpdateServiceForArtist(Guid id, [FromBody] UpdateServiceDTO dto)
+        public async Task<IActionResult> UpdateServiceForArtist([FromBody] UpdateServiceDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            if (id != dto.Id)
-                return BadRequest("ID in the URL must match ID in the body.");
 
             await _serviceService.UpdateServiceForArtistAsync(dto);
             return NoContent();
@@ -155,6 +163,7 @@ namespace Lumine.API.Controllers
         /// Updates an existing service.
         /// </summary>
         [HttpPut("{id}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateServiceDTO dto)
         {
             if (!ModelState.IsValid)
@@ -171,6 +180,7 @@ namespace Lumine.API.Controllers
         /// Deletes a service by ID.
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _serviceService.DeleteAsync(id);

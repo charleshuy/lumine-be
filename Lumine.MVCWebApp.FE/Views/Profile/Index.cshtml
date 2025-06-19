@@ -1,0 +1,495 @@
+﻿@model Application.DTOs.UserDTO.ResponseUserDTO
+@using Application.DTOs.ServiceDTO
+@using Application.Paggings
+@using Application.DTOs
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("_UserSidebar")
+
+<form asp-action="Update" method="post" id="profileForm">
+    <div class="container mt-5 profile-container position-relative">
+        <div class="star-icon">★</div>
+        <div class="profile-header">XIN CHÀO <span>“@Model.FirstName @Model.LastName”</span></div>
+        @* <p class="profile-subtext">Profile của bạn có thể cập nhật lúc nào cũng được nhé</p> *@
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="profile-img-container">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-avatar.png") : Model.ProfilePicture)" alt="Profile Picture" class="img-fluid" />
+                </div>
+                <button type="button" class="btn btn-sm btn-light-pink w-100 mb-3">
+                    <i class="bi bi-pencil-fill"></i> Thay đổi ảnh
+                </button>
+            </div>
+
+
+            <div class="col-md-8">
+
+                <ul class="nav nav-pills nav-custom mb-4" id="profileTabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-tab="info">Thông tin tài khoản</a>
+                    </li>
+
+                    @if (Model.Roles.Any(r => r.Name == "User"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-tab="bookings">Lịch sử đặt lịch</a>
+                        </li>
+                    }
+                    else if (Model.Roles.Any(r => r.Name == "Artist"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-tab="services">Quản lý dịch vụ</a>
+                        </li>
+                    }
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Đổi mật khẩu</a>
+                    </li>
+                </ul>
+
+
+                <!-- Info Section -->
+                <div id="info-section">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <label class="info-label">Họ và tên:</label>
+                            <div class="info-value view-mode">@Model.FirstName @Model.LastName</div>
+                            <input type="text" name="FirstName" class="form-control edit-mode d-none" value="@Model.FirstName" />
+                            <input type="text" name="LastName" class="form-control edit-mode d-none mt-1" value="@Model.LastName" />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="info-label">Tên người dùng:</label>
+                            <div class="info-value">@Model.UserName</div>
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Email:</label>
+                            <div class="info-value view-mode">@Model.Email</div>
+                            <input type="email" class="form-control edit-mode d-none" value="@Model.Email" disabled />
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Địa chỉ:</label>
+                            <div class="info-value view-mode">@Model.Address</div>
+                            <input type="text" name="Address" class="form-control edit-mode d-none" value="@Model.Address" />
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Số điện thoại:</label>
+                            <div class="info-value view-mode">@Model.PhoneNumber</div>
+                            <input type="text" name="PhoneNumber" class="form-control edit-mode d-none" value="@Model.PhoneNumber" />
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Ngày tạo:</label>
+                            <div class="info-value">@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
+                        </div>
+                        <div class="col-sm-6 mt-3">
+                            <label class="info-label">Quyền:</label>
+                            <div class="info-value">
+                                @(Model.Roles != null && Model.Roles.Any() ? string.Join(", ", Model.Roles.Select(r => r.Name)) : "Không có quyền")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-black" id="toggleEdit">Thay thông tin</button>
+                        <a href="#" class="btn btn-light-pink">Liên hệ</a>
+                    </div>
+                </div>
+
+                <!-- Booking Section -->
+                <div id="bookings-section" class="d-none mt-4">
+                    @if (ViewBag.Bookings != null && ((PaginatedList<BookingDTO>)ViewBag.Bookings).Items.Any())
+                    {
+                        var bookings = (PaginatedList<BookingDTO>)ViewBag.Bookings;
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ngày đặt</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thợ làm</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var booking in bookings.Items)
+                                {
+                                    <tr>
+                                        <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
+                                        <td>@booking.Status</td>
+                                        <td>@booking.Service?.ArtistName</td>
+                                        <td>@booking.Service?.ServiceName</td>
+                                        <td>@booking.TotalPrice.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        @if (bookings.TotalPages > 1)
+                        {
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    @if (bookings.HasPreviousPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?bookingPage=@(bookings.PageNumber - 1)">«</a>
+                                        </li>
+                                    }
+
+                                    @for (int i = 1; i <= bookings.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == bookings.PageNumber ? "active" : "")">
+                                            <a class="page-link" href="?bookingPage=@i">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (bookings.HasNextPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?bookingPage=@(bookings.PageNumber + 1)">»</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
+                        }
+
+
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">Bạn chưa có lịch hẹn nào.</div>
+                    }
+                </div>
+
+                <!-- Services Section for Artist -->
+                <div id="services-section" class="d-none mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Danh sách dịch vụ</h5>
+                        <button type="button" class="btn btn-light-pink" data-bs-toggle="modal" data-bs-target="#createServiceModal">
+                            <i class="bi bi-plus-circle"></i> Tạo dịch vụ mới
+                        </button>
+                    </div>
+
+                    @if (ViewBag.Services != null && ((PaginatedList<ResponseServiceDTO>)ViewBag.Services).Items.Any())
+                    {
+                        var services = (PaginatedList<ResponseServiceDTO>)ViewBag.Services;
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên dịch vụ</th>
+                                    <th>Giá</th>
+                                    <th>Thời lượng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var service in services.Items)
+                                {
+                                    <tr>
+                                        <td>@service.ServiceName</td>
+                                        <td>@service.Price.ToString("C")</td>
+                                        <td>@service.Duration</td>
+                                        <td>@service.Status</td>
+                                        <td>@service.ServiceDescription</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-service-btn"
+                                                    data-id="@service.Id"
+                                                    data-name="@service.ServiceName"
+                                                    data-description="@service.ServiceDescription"
+                                                    data-duration="@service.Duration"
+                                                    data-price="@service.Price"
+                                                    data-status="@((int)service.Status)"
+                                                    data-typeid="@service.ServiceTypeID"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#createServiceModal">
+                                                <i class="bi bi-pencil-square"></i> Sửa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                        @if (services.TotalPages > 1)
+                        {
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    @if (services.HasPreviousPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?servicePage=@(services.PageNumber - 1)">«</a>
+                                        </li>
+                                    }
+
+                                    @for (int i = 1; i <= services.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == services.PageNumber ? "active" : "")">
+                                            <a class="page-link" href="?servicePage=@i">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (services.HasNextPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?servicePage=@(services.PageNumber + 1)">»</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
+                        }
+
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">Bạn chưa có dịch vụ nào.</div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Modal: Create New Service -->
+<div class="modal fade" id="createServiceModal" tabindex="-1" aria-labelledby="createServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="createServiceForm">
+                <input type="hidden" id="ServiceId" name="id" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createServiceModalLabel">Tạo dịch vụ mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label for="ServiceName" class="form-label">Tên dịch vụ</label>
+                        <input type="text" class="form-control" id="ServiceName" name="serviceName" required />
+                    </div>
+                    <div class="col-12">
+                        <label for="Description" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="Description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Duration" class="form-label">Thời lượng (phút)</label>
+                        <input type="number" class="form-control" id="Duration" name="duration" min="1" max="1440" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Price" class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="Price" name="price" required min="0" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="Status" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="Status" name="status" required>
+                            <option value="0">Hoạt động</option>
+                            <option value="1">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ServiceTypeID" class="form-label">Loại dịch vụ</label>
+                        <select class="form-select" id="ServiceTypeID" name="serviceTypeID" required>
+                            <option value="">-- Chọn loại dịch vụ --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-pink">Tạo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        let editMode = false;
+
+        document.getElementById('toggleEdit').addEventListener('click', function () {
+            editMode = !editMode;
+
+            document.querySelectorAll('.view-mode').forEach(el => el.classList.toggle('d-none'));
+            document.querySelectorAll('.edit-mode').forEach(el => el.classList.toggle('d-none'));
+            this.textContent = editMode ? 'Lưu thông tin' : 'Thay thông tin';
+
+            if (!editMode) {
+                document.getElementById('profileForm').submit();
+            }
+        });
+
+        // Toggle tabs
+        // Handle tab click
+        document.querySelectorAll('#profileTabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Save selected tab to localStorage
+                const selected = this.getAttribute('data-tab');
+                localStorage.setItem('activeProfileTab', selected);
+
+                // Switch tab visually
+                switchTab(selected);
+            });
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('#profileTabs .nav-link').forEach(t => {
+                t.classList.remove('active');
+                if (t.getAttribute('data-tab') === tab) {
+                    t.classList.add('active');
+                }
+            });
+
+            // Hide all sections
+            document.getElementById('info-section')?.classList.add('d-none');
+            document.getElementById('bookings-section')?.classList.add('d-none');
+            document.getElementById('services-section')?.classList.add('d-none');
+
+            // Show selected
+            if (tab === 'info') document.getElementById('info-section')?.classList.remove('d-none');
+            if (tab === 'bookings') document.getElementById('bookings-section')?.classList.remove('d-none');
+            if (tab === 'services') document.getElementById('services-section')?.classList.remove('d-none');
+        }
+
+        // Restore tab on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTab = localStorage.getItem('activeProfileTab') || 'info';
+            switchTab(savedTab);
+        });
+
+                // Open modal and populate fields
+        document.querySelectorAll('.edit-service-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                document.getElementById('ServiceId').value = this.dataset.id;
+                document.getElementById('ServiceName').value = this.dataset.name;
+                document.getElementById('Description').value = this.dataset.description;
+
+                // 👇 Convert "01:30:00" → 90
+                const timeParts = this.dataset.duration.split(':');
+                const durationMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+                document.getElementById('Duration').value = durationMinutes;
+
+                document.getElementById('Price').value = this.dataset.price;
+                document.getElementById('Status').value = this.dataset.status;
+                document.getElementById('ServiceTypeID').value = this.dataset.typeid;
+
+                // Update modal title and button text (optional)
+                document.getElementById('createServiceModalLabel').textContent = 'Chỉnh sửa dịch vụ';
+                document.querySelector('#createServiceForm button[type="submit"]').textContent = 'Cập nhật';
+            });
+        });
+
+                // Clear modal fields when clicking "Tạo dịch vụ mới"
+        document.querySelector('[data-bs-target="#createServiceModal"]').addEventListener('click', function () {
+            document.getElementById('ServiceId').value = '';
+            document.getElementById('ServiceName').value = '';
+            document.getElementById('Description').value = '';
+            document.getElementById('Duration').value = '';
+            document.getElementById('Price').value = '';
+            document.getElementById('Status').value = '0';
+            document.getElementById('ServiceTypeID').value = '';
+
+            document.getElementById('createServiceModalLabel').textContent = 'Tạo dịch vụ mới';
+            document.querySelector('#createServiceForm button[type="submit"]').textContent = 'Tạo';
+        });
+
+
+
+        //createService
+                document.getElementById('createServiceForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('TokenString='))
+                ?.split('=')[1];
+
+            if (!token) {
+                alert('Bạn cần đăng nhập lại.');
+                return;
+            }
+
+            const id = document.getElementById('ServiceId').value;
+
+            const data = {
+                id: id || null,
+                serviceName: document.getElementById('ServiceName').value,
+                description: document.getElementById('Description').value,
+                durationInMinutes: parseInt(document.getElementById('Duration').value),
+                price: parseFloat(document.getElementById('Price').value),
+                status: parseInt(document.getElementById('Status').value),
+                serviceTypeID: document.getElementById('ServiceTypeID').value
+            };
+
+            const url = id
+                ? `https://localhost:7216/api/Service/by-artist/${id}`
+                : 'https://localhost:7216/api/Service/by-artist';
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const err = await response.text();
+                    alert(`${id ? 'Cập nhật' : 'Tạo'} dịch vụ thất bại: ` + err);
+                    return;
+                }
+
+                alert(`${id ? 'Cập nhật' : 'Tạo'} dịch vụ thành công!`);
+                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert('Lỗi khi gửi yêu cầu.');
+            }
+        });
+
+
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('TokenString='))
+                ?.split('=')[1];
+
+            if (!token) return;
+
+            try {
+                const response = await fetch('https://localhost:7216/api/ServiceType', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (response.ok) {
+                    const serviceTypes = await response.json();
+                    const select = document.getElementById('ServiceTypeID');
+
+                    serviceTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.id;
+                        option.textContent = type.name;
+                        select.appendChild(option);
+                    });
+                } else {
+                    console.warn('Không thể tải danh sách loại dịch vụ');
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải loại dịch vụ:', error);
+            }
+        });
+    </script>
+
+}

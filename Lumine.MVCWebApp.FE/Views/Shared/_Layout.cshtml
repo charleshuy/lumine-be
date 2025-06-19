@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="~/css/admin/thanh.css" />
     <link rel="stylesheet" href="~/css/admin/style.css" />
     <link rel="stylesheet" href="~/css/user/style.css" />
+    <link rel="stylesheet" href="~/css/user/sidebar.css" />
+    <link rel="stylesheet" href="~/css/user/profile.css" />
     <link rel="stylesheet" href="~/css/admin/pic.css" />
     <link rel="stylesheet" href="~/css/register.css" />
     <link rel="stylesheet" href="~/css/appOverview.css" />
@@ -78,6 +80,18 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleBtn = document.getElementById("userSidebarToggle");
+            const sidebar = document.getElementById("user-sidebar");
+
+            toggleBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+            });
+        });
+    </script>
+
 
 </body>
 </html>

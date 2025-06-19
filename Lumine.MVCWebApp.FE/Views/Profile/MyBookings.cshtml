@@ -1,0 +1,43 @@
+﻿@using Application.DTOs
+@model Application.Paggings.PaginatedList<BookingDTO>
+@{
+    ViewData["Title"] = "Lịch sử đặt lịch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h3 class="mb-4">Lịch sử đặt lịch của bạn</h3>
+
+    @if (Model.Items.Any())
+    {
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Ngày đặt</th>
+                    <th>Thời gian</th>
+                    <th>Trạng thái</th>
+                    <th>Thợ làm</th>
+                    <th>Dịch vụ</th>
+                    <th>Tổng tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Model.Items)
+                {
+                    <tr>
+                        <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
+                        <td>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
+                        <td>@booking.Status</td>
+                        <td>@booking.Service?.ArtistName</td>
+                        <td>@booking.Service?.ServiceName</td>
+                        <td>@booking.TotalPrice.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">Bạn chưa có lịch hẹn nào.</div>
+    }
+</div>

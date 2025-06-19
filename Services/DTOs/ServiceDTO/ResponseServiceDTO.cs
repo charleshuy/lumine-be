@@ -9,8 +9,9 @@ namespace Application.DTOs.ServiceDTO
         public string? ServiceDescription { get; set; }
         public TimeSpan Duration { get; set; }
         public decimal Price { get; set; }
-        public string? Status { get; set; }
+        public ServiceStatus Status { get; set; }
         public string? ArtistName { get; set; }
+        public Guid ServiceTypeID { get; set; }
         public Guid? ArtistID { get; set; }
         public ServiceTypeDTO? ServiceType { get; set; }
     }
@@ -29,7 +30,7 @@ namespace Application.DTOs.ServiceDTO
     {
         public string ServiceName { get; set; } = default!;
         public string? Description { get; set; }
-        public TimeSpan Duration { get; set; }
+        public int DurationInMinutes { get; set; }
         public decimal Price { get; set; }
         public ServiceStatus Status { get; set; }
         public Guid ServiceTypeID { get; set; }
@@ -40,7 +41,7 @@ namespace Application.DTOs.ServiceDTO
         public Guid Id { get; set; }
         public string ServiceName { get; set; } = default!;
         public string? Description { get; set; }
-        public TimeSpan Duration { get; set; }
+        public int DurationInMinutes { get; set; }
         public decimal Price { get; set; }
         public ServiceStatus Status { get; set; }
         public Guid ServiceTypeID { get; set; }

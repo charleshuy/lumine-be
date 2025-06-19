@@ -67,6 +67,21 @@ namespace Application.Services
             return new PaginatedList<ResponseServiceDTO>(dtoList, paged.TotalCount, pageIndex, pageSize);
         }
 
+        public async Task<ResponseServiceDTO> GetByIdAsync(Guid id)
+        {
+            var entity = await _unitOfWork.GetRepository<Service>()
+                .Entities
+                .Include(s => s.Artist)
+                .Include(s => s.ServiceType)
+                .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
+
+            if (entity == null)
+                throw new NotFoundException("service_not_found", $"Service with ID {id} not found");
+
+            return _mapper.Map<ResponseServiceDTO>(entity);
+        }
+
+
         public async Task<PaginatedList<ResponseServiceDTO>> GetServicesForArtistAsync(
             int pageIndex,
             int pageSize,
