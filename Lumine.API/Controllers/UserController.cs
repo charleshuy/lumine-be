@@ -2,6 +2,7 @@
 using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Paggings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lumine.API.Controllers
@@ -92,6 +93,7 @@ namespace Lumine.API.Controllers
         /// <param name="dto">The updated user data.</param>  
         /// <returns>NoContent if successful; otherwise, NotFound or BadRequest.</returns>  
         [HttpPut("{id:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDTO dto)
         {
             var updated = await _userService.UpdateUserAsync(id, dto);
@@ -107,6 +109,7 @@ namespace Lumine.API.Controllers
         /// <param name="id">The ID of the user to delete.</param>  
         /// <returns>NoContent if successful; otherwise, NotFound.</returns>  
         [HttpDelete("{id:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             var deleted = await _userService.DeleteUserAsync(id);
@@ -123,6 +126,7 @@ namespace Lumine.API.Controllers
         /// <param name="pageSize">The number of items per page.</param>
         /// <returns>A paginated list of unapproved artists.</returns>
         [HttpGet("unapproved-artists")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetUnapprovedArtists(
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10)
@@ -142,6 +146,7 @@ namespace Lumine.API.Controllers
         /// <param name="id">The user ID of the artist to approve.</param>
         /// <returns>NoContent if successful; otherwise, NotFound.</returns>
         [HttpPut("approve-artist/{id:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> ApproveArtist(Guid id)
         {
             var success = await _userService.ApproveArtistAsync(id);
@@ -150,7 +155,6 @@ namespace Lumine.API.Controllers
 
             return NoContent();
         }
-
 
     }
 }

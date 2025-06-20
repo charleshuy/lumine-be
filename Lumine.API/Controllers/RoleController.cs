@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lumine.API.Controllers
@@ -51,6 +52,7 @@ namespace Lumine.API.Controllers
         /// </summary>  
         /// <param name="dto">The role data transfer object.</param>  
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> CreateRole([FromBody] RoleDTO dto)
         {
             var result = await _roleService.CreateRoleAsync(dto);
@@ -64,6 +66,7 @@ namespace Lumine.API.Controllers
         /// <param name="dto">The new role data.</param>  
         /// <returns>Returns a success message or NotFound.</returns>  
         [HttpPut("{roleName}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> UpdateRole(string roleName, [FromBody] RoleDTO dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
@@ -81,6 +84,7 @@ namespace Lumine.API.Controllers
         /// </summary>  
         /// <param name="roleName">The name of the role to delete.</param>  
         [HttpDelete("{roleName}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> DeleteRole(string roleName)
         {
             var deleted = await _roleService.DeleteRoleAsync(roleName);

@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.SearchFilters;
 using Application.DTOs.UserDTO;
 using Application.Paggings;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Interfaces.Services
 {
@@ -20,5 +21,7 @@ namespace Application.Interfaces.Services
         Guid? GetCurrentUserId();
         Task<PaginatedList<ResponseUserDTO>> GetUnapprovedArtistsAsync(int pageIndex, int pageSize);
         Task<bool> ApproveArtistAsync(Guid userId);
+        Task<string> UploadCurrentUserAvatarAsync(IFormFile avatarFile);
+
     }
 }
