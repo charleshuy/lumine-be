@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lumine.API.Controllers
@@ -27,6 +28,7 @@ namespace Lumine.API.Controllers
         /// <param name="file">The image file to upload.</param>
         /// <returns>The URL of the uploaded image.</returns>
         [HttpPost("upload")]
+        [Authorize(AuthenticationSchemes = "Jwt")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)

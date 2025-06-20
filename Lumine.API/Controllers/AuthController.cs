@@ -142,5 +142,20 @@ namespace Lumine.API.Controllers
             return NoContent();
         }
 
+        /// <summary>  
+        /// Uploads an avatar for the current user.  
+        /// </summary>  
+        /// <param name="file">The avatar file to upload.</param>  
+        /// <returns>The URL of the uploaded avatar.</returns>  
+        [HttpPost("avatar")]
+        [Authorize(AuthenticationSchemes = "Jwt")]
+        public async Task<IActionResult> UploadAvatar(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File không hợp lệ.");
+
+            var url = await _userService.UploadCurrentUserAvatarAsync(file);
+            return Ok(new { Url = url });
+        }
     }
 }

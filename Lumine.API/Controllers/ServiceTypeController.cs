@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.ServiceDTO;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lumine.API.Controllers
@@ -51,6 +52,7 @@ namespace Lumine.API.Controllers
         /// <param name="dto">The service type to create.</param>  
         /// <returns>The created service type.</returns>  
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<ActionResult<ServiceTypeDTO>> Create([FromBody] CreateServiceTypeDTO dto)
         {
             var created = await _serviceTypeService.CreateAsync(dto);
@@ -64,6 +66,7 @@ namespace Lumine.API.Controllers
         /// <param name="dto">The updated service type data.</param>  
         /// <returns>No content if the update is successful.</returns>  
         [HttpPut("{id:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateServiceTypeDTO dto)
         {
             if (id != dto.Id)
@@ -79,6 +82,7 @@ namespace Lumine.API.Controllers
         /// <param name="id">The ID of the service type to delete.</param>  
         /// <returns>No content if the deletion is successful.</returns>  
         [HttpDelete("{id:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _serviceTypeService.DeleteAsync(id);

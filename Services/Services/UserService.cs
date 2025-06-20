@@ -20,17 +20,20 @@ namespace Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IImageService _imageService;
 
         public UserService(
             IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IImageService imageService) // inject this
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _imageService = imageService;
         }
 
         public async Task<PaginatedList<ResponseUserDTO>> GetPaginatedUsers(
@@ -327,6 +330,36 @@ namespace Application.Services
                 throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
 
             return true;
+        }
+
+        public async Task<string> UploadCurrentUserAvatarAsync(IFormFile avatarFile)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+                throw new AuthenticationException("Vui lòng đăng nhập trước.");
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null || user.IsDeleted)
+                throw new ArgumentException("Không tìm thấy người dùng.");
+
+            // Optionally delete old avatar
+            if (!string.IsNullOrEmpty(user.ProfilePicture))
+            {
+                var publicId = Path.GetFileNameWithoutExtension(new Uri(user.ProfilePicture).AbsolutePath);
+                await _imageService.DeleteImageAsync(publicId);
+            }
+
+            using var stream = avatarFile.OpenReadStream();
+            var imageUrl = await _imageService.UploadImageAsync(stream, avatarFile.FileName);
+
+            user.ProfilePicture = imageUrl;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+            return imageUrl;
         }
 
     }
