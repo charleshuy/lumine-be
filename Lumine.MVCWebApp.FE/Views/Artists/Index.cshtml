@@ -1,0 +1,81 @@
+﻿@using Application.Paggings
+@model PaginatedList<Application.DTOs.UserDTO.ResponseUserDTO>
+
+@{
+    ViewData["Title"] = "Danh sách thợ makeup";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+
+
+<div class="container mt-5">
+    @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
+    {
+    ("Lumine", Url.Action("Index", "Home")),
+    ("Dịch vụ", null)
+    })
+
+    <h2 class="fw-bold mb-4 text-center">Danh sách thợ makeup</h2>
+
+    <div class="d-flex justify-content-end gap-3 mb-4">
+        <button class="btn btn-light rounded-pill shadow-sm px-4">Gần tôi</button>
+        <button class="btn btn-light rounded-pill shadow-sm px-4">Loại hình dịch vụ <i class="fas fa-chevron-right ms-1"></i></button>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var artist in Model.Items)
+        {
+            <div class="col">
+                <div class="card border-0 shadow-sm text-center py-4 px-3 rounded-4 position-relative" style="background-color: #fff0f5;">
+                    <div class="position-relative mx-auto mb-3" style="width: 150px; height: 200px; overflow: hidden; border-radius: 50%;">
+                        <img src="@artist.ProfilePicture" alt="@($"{artist.FirstName} {artist.LastName}")" class="img-fluid" style="object-fit: cover; width: 100%; height: 100%;">
+                    </div>
+                    <i class="fas fa-heart position-absolute top-0 end-0 m-3 text-pink"></i>
+
+                    <div class="text-muted small">Thợ makeup | <span class="text-danger"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></span></div>
+                    <div class="fw-bold">@artist.PhoneNumber | @artist.FirstName @artist.LastName | @(DateTime.Now.Year - artist.CreatedAt.Year) tuổi</div>
+                    <div class="text-muted small mb-3">@artist.Address</div>
+
+                    <div class="d-grid gap-2 px-4">
+                        <a class="btn btn-primary rounded-pill" href="#">ĐẶT LỊCH NGAY</a>
+                        <a class="btn btn-light rounded-pill border" asp-action="Detail" asp-route-id="@artist.Id">XEM THÔNG TIN</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex justify-content-center mt-5">
+        @if (Model.HasPreviousPage)
+        {
+            <a class="btn btn-outline-primary rounded-pill me-2" asp-action="Index" asp-route-pageIndex="@(Model.PageNumber - 1)">← Trang trước</a>
+        }
+        <span class="align-self-center">Trang @Model.PageNumber / @Model.TotalPages</span>
+        @if (Model.HasNextPage)
+        {
+            <a class="btn btn-outline-primary rounded-pill ms-2" asp-action="Index" asp-route-pageIndex="@(Model.PageNumber + 1)">Trang sau →</a>
+        }
+    </div>
+</div>
+
+<style>
+    .text-pink {
+        color: #ff69b4;
+    }
+
+    .btn-primary {
+        background-color: #845EC2;
+        border-color: #845EC2;
+    }
+
+        .btn-primary:hover {
+            background-color: #6f4db2;
+            border-color: #6f4db2;
+        }
+
+    body {
+        background: linear-gradient(to bottom, #ffe6f0 0%, #ffffff 100%);
+    }
+</style>

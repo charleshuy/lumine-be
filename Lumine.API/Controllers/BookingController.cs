@@ -164,15 +164,22 @@ namespace Lumine.API.Controllers
         /// <param name="bookingDto">Booking details.</param>
         /// <returns>The created booking.</returns>
         [HttpPost("customer")]
-        [Authorize(AuthenticationSchemes = "Jwt", Roles ="User")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "User")]
         public async Task<ActionResult<BookingDTO>> BookingForCustomer([FromBody] BookingCreateDTO bookingDto)
         {
             if (bookingDto == null)
                 return BadRequest("Booking data is required.");
 
+            var customerId = _userService.GetCurrentUserId();
+            if (customerId == null)
+                return Unauthorized("User not authenticated.");
+
+            bookingDto.CustomerID = customerId.Value;
+
             var createdBooking = await _bookingService.BookingForCustomerAsync(bookingDto);
             return CreatedAtAction(nameof(GetBookings), new { id = createdBooking.Id }, createdBooking);
         }
+
 
         /// <summary>
         /// Confirms or cancel a booking by ID.

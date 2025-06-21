@@ -65,15 +65,13 @@ namespace Application.Services
             if (customer == null)
                 throw new ArgumentException("Invalid customer ID.");
 
-            if (bookingDto.StartTime >= bookingDto.EndTime)
-                throw new ArgumentException("StartTime must be earlier than EndTime.");
+            var calculatedEndTime = bookingDto.StartTime + service.Duration;
 
             // Check for overlapping bookings for the same service
             var isOverlap = await bookingRepo.Entities.AnyAsync(b =>
                 b.ServiceID == bookingDto.ServiceID &&
-                (
-                    (bookingDto.StartTime < b.EndTime && bookingDto.EndTime > b.StartTime)
-                ));
+                bookingDto.StartTime < b.EndTime &&
+                calculatedEndTime > b.StartTime);
 
             if (isOverlap)
                 throw new InvalidOperationException("The selected time slot is already booked for this service.");
@@ -84,6 +82,7 @@ namespace Application.Services
             booking.BookingDate = DateTime.UtcNow;
             booking.TotalPrice = service.Price;
             booking.Status = BookingStatus.Pending;
+            booking.EndTime = calculatedEndTime; // ✅ Set calculated EndTime
 
             await bookingRepo.InsertAsync(booking);
             await _unitOfWork.SaveAsync();
@@ -95,6 +94,7 @@ namespace Application.Services
 
             return _mapper.Map<BookingDTO>(bookingWithIncludes);
         }
+
 
         public async Task<List<BookingStatusSummaryDTO>> GetBookingStatusSummaryAsync()
         {
@@ -132,25 +132,30 @@ namespace Application.Services
             if (customer == null)
                 throw new ArgumentException("Invalid customer ID.");
 
-            if (bookingDto.StartTime >= bookingDto.EndTime)
-                throw new ArgumentException("StartTime must be earlier than EndTime.");
+            var endTime = bookingDto.StartTime.Add(service.Duration);
+
 
             // Check for overlapping bookings for the same service
             var isOverlap = await bookingRepo.Entities.AnyAsync(b =>
                 b.ServiceID == bookingDto.ServiceID &&
                 (
-                    (bookingDto.StartTime < b.EndTime && bookingDto.EndTime > b.StartTime)
+                    (bookingDto.StartTime < b.EndTime && endTime > b.StartTime)
                 ));
 
             if (isOverlap)
                 throw new InvalidOperationException("The selected time slot is already booked for this service.");
 
-            var booking = _mapper.Map<Booking>(bookingDto);
-            booking.Service = service;
-            booking.Customer = customer;
-            booking.BookingDate = DateTime.UtcNow;
-            booking.TotalPrice = service.Price;
-            booking.Status = BookingStatus.Pending;
+            var booking = new Booking
+            {
+                Id = Guid.NewGuid(),
+                ServiceID = bookingDto.ServiceID,
+                CustomerID = bookingDto.CustomerID,
+                StartTime = bookingDto.StartTime,
+                EndTime = endTime,
+                BookingDate = DateTime.UtcNow,
+                TotalPrice = service.Price,
+                Status = BookingStatus.Pending
+            };
 
             await bookingRepo.InsertAsync(booking);
             await _unitOfWork.SaveAsync();
@@ -162,6 +167,8 @@ namespace Application.Services
 
             return _mapper.Map<BookingDTO>(bookingWithIncludes);
         }
+
+
 
         public async Task<BookingDTO> StatusBookingAsync(Guid bookingId, BookingStatus status)
         {

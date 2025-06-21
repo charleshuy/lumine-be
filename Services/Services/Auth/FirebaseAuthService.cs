@@ -212,9 +212,19 @@ namespace Application.Services.Auth
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(verificationUrl, content);
 
+            var responseBody = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
-                throw new BaseException.CoreException("email_verification_failed", "Failed to send verification email.");
+            {
+                var error = System.Text.Json.JsonDocument.Parse(responseBody);
+                var message = error.RootElement.GetProperty("error").GetProperty("message").GetString();
+                throw new BaseException.CoreException("email_verification_failed", $"Email verification failed: {message}");
+            }
+
+            // Optional: log for success debug
+            Console.WriteLine("Email verification sent successfully");
         }
+
 
         public async Task<string> LoginWithEmailPasswordFirebaseAsync(string email, string password, string? fcmToken = null)
         {

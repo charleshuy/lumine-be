@@ -31,9 +31,7 @@ namespace Application.DTOs
         public Guid ServiceID { get; set; }
         public Guid CustomerID { get; set; }
         public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        //public decimal TotalPrice { get; set; }
-        //public decimal Deposit { get; set; }
+        //public DateTime EndTime { get; set; }
     }
 
     public class BookingStatusSummaryDTO

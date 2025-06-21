@@ -322,16 +322,11 @@
         });
 
         // Toggle tabs
-        // Handle tab click
         document.querySelectorAll('#profileTabs .nav-link').forEach(tab => {
             tab.addEventListener('click', function (e) {
                 e.preventDefault();
-
-                // Save selected tab to localStorage
                 const selected = this.getAttribute('data-tab');
                 localStorage.setItem('activeProfileTab', selected);
-
-                // Switch tab visually
                 switchTab(selected);
             });
         });
@@ -339,36 +334,30 @@
         function switchTab(tab) {
             document.querySelectorAll('#profileTabs .nav-link').forEach(t => {
                 t.classList.remove('active');
-                if (t.getAttribute('data-tab') === tab) {
-                    t.classList.add('active');
-                }
+                if (t.getAttribute('data-tab') === tab) t.classList.add('active');
             });
 
-            // Hide all sections
             document.getElementById('info-section')?.classList.add('d-none');
             document.getElementById('bookings-section')?.classList.add('d-none');
             document.getElementById('services-section')?.classList.add('d-none');
 
-            // Show selected
             if (tab === 'info') document.getElementById('info-section')?.classList.remove('d-none');
             if (tab === 'bookings') document.getElementById('bookings-section')?.classList.remove('d-none');
             if (tab === 'services') document.getElementById('services-section')?.classList.remove('d-none');
         }
 
-        // Restore tab on page load
         document.addEventListener('DOMContentLoaded', function () {
             const savedTab = localStorage.getItem('activeProfileTab') || 'info';
             switchTab(savedTab);
         });
 
-                // Open modal and populate fields
+        // Edit service
         document.querySelectorAll('.edit-service-btn').forEach(button => {
             button.addEventListener('click', function () {
                 document.getElementById('ServiceId').value = this.dataset.id;
                 document.getElementById('ServiceName').value = this.dataset.name;
                 document.getElementById('Description').value = this.dataset.description;
 
-                // 👇 Convert "01:30:00" → 90
                 const timeParts = this.dataset.duration.split(':');
                 const durationMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
                 document.getElementById('Duration').value = durationMinutes;
@@ -377,13 +366,12 @@
                 document.getElementById('Status').value = this.dataset.status;
                 document.getElementById('ServiceTypeID').value = this.dataset.typeid;
 
-                // Update modal title and button text (optional)
                 document.getElementById('createServiceModalLabel').textContent = 'Chỉnh sửa dịch vụ';
                 document.querySelector('#createServiceForm button[type="submit"]').textContent = 'Cập nhật';
             });
         });
 
-                // Clear modal fields when clicking "Tạo dịch vụ mới"
+        // Create new service
         document.querySelector('[data-bs-target="#createServiceModal"]').addEventListener('click', function () {
             document.getElementById('ServiceId').value = '';
             document.getElementById('ServiceName').value = '';
@@ -397,24 +385,18 @@
             document.querySelector('#createServiceForm button[type="submit"]').textContent = 'Tạo';
         });
 
-
-
-        //createService
-                document.getElementById('createServiceForm').addEventListener('submit', async function (e) {
+        // Submit service form
+        document.getElementById('createServiceForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('TokenString='))
-                ?.split('=')[1];
-
+            const token = document.cookie.split('; ').find(row => row.startsWith('TokenString='))?.split('=')[1];
             if (!token) {
                 alert('Bạn cần đăng nhập lại.');
                 return;
             }
 
+            const baseUrl = window.appConfig.apiBaseUrl;
             const id = document.getElementById('ServiceId').value;
-
             const data = {
                 id: id || null,
                 serviceName: document.getElementById('ServiceName').value,
@@ -426,8 +408,8 @@
             };
 
             const url = id
-                ? `https://localhost:7216/api/Service/by-artist/${id}`
-                : 'https://localhost:7216/api/Service/by-artist';
+                ? `${baseUrl}/Service/by-artist/${id}`
+                : `${baseUrl}/Service/by-artist`;
             const method = id ? 'PUT' : 'POST';
 
             try {
@@ -453,21 +435,17 @@
                 alert('Lỗi khi gửi yêu cầu.');
             }
         });
-
-
     </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('TokenString='))
-                ?.split('=')[1];
-
+            const token = document.cookie.split('; ').find(row => row.startsWith('TokenString='))?.split('=')[1];
             if (!token) return;
 
+            const baseUrl = window.appConfig.apiBaseUrl;
+
             try {
-                const response = await fetch('https://localhost:7216/api/ServiceType', {
+                const response = await fetch(`${baseUrl}/ServiceType`, {
                     headers: {
                         'Authorization': 'Bearer ' + token
                     }
@@ -491,5 +469,5 @@
             }
         });
     </script>
-
 }
+
