@@ -85,12 +85,31 @@ namespace Lumine.MVCWebApp.FE.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    var errorDoc = JsonDocument.Parse(responseContent);
+                    if (errorDoc.RootElement.TryGetProperty("errorMessage", out var errorMessageProp))
+                    {
+                        string message = errorMessageProp.GetString() ?? "Login failed. Please try again.";
+                        ModelState.AddModelError(string.Empty, message);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                    }
+                }
+                catch
+                {
+                    ModelState.AddModelError(string.Empty, "Login failed. Please try again.");
+                }
+
                 return View(request);
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseData = JsonDocument.Parse(responseContent);
+            var tokenJson = await response.Content.ReadAsStringAsync();
+            var responseData = JsonDocument.Parse(tokenJson);
             var token = responseData.RootElement.GetProperty("token").GetString();
 
             var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
@@ -118,6 +137,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 ? RedirectToAction("Index", "Accounts")
                 : RedirectToAction("Index", "Home");
         }
+
 
         [HttpGet]
         public IActionResult Register() => View();
@@ -172,17 +192,59 @@ namespace Lumine.MVCWebApp.FE.Controllers
 
         public async Task<IActionResult> Logout()
         {
+            var role = User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             Response.Cookies.Delete("UserName");
             Response.Cookies.Delete("Role");
             Response.Cookies.Delete("TokenString");
 
-            return RedirectToAction("Login", "Auth");
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            else
+            {
+                return RedirectToAction("LoginUser", "Auth");
+            }
         }
+
 
         public IActionResult Forbidden()
         {
             return View();
         }
+
+        [HttpGet]
+        public IActionResult RegisterArtist() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterArtist(RegisterEmailRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View(request);
+
+            var client = _httpClientFactory.CreateClient();
+            var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync($"{_apiBaseUrl}/auth/register-artist-email", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                // Handle error parsing as in normal Register method
+                return View(request);
+            }
+
+            ViewBag.Message = "Đăng ký thành công. Vui lòng xác minh email trước khi đăng nhập.";
+            return View();
+        }
+
+        public IActionResult RegistOption()
+        {
+            return View();
+        }
+
+
     }
 }

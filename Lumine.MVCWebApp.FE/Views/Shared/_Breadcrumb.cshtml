@@ -1,0 +1,53 @@
+﻿@model List<(string Label, string? Url)>
+
+@if (Model != null && Model.Any())
+{
+    <nav class="breadcrumb-container mb-4">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var item = Model[i];
+            if (!string.IsNullOrEmpty(item.Url))
+            {
+                <a href="@item.Url" class="breadcrumb-link">@item.Label</a>
+            }
+            else
+            {
+                <span class="breadcrumb-current">@item.Label</span>
+            }
+
+            if (i < Model.Count - 1)
+            {
+                <span class="breadcrumb-separator">&lt;</span>
+            }
+        }
+    </nav>
+}
+
+<style>
+    .breadcrumb-container {
+        font-weight: 600;
+        color: #d78ac2;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .breadcrumb-link {
+        text-decoration: none;
+        color: #d78ac2;
+        transition: color 0.2s;
+    }
+
+        .breadcrumb-link:hover {
+            text-decoration: underline;
+            color: #b76aa4;
+        }
+
+    .breadcrumb-separator {
+        margin: 0 0.5rem;
+        color: #d78ac2;
+    }
+
+    .breadcrumb-current {
+        color: #d78ac2;
+    }
+</style>

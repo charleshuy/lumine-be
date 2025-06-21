@@ -26,6 +26,15 @@
                 <p class="subtitle">Quản lý tài khoản</p>
 
                 <form asp-action="LoginUser" method="post" class="form-content">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div>@error.ErrorMessage</div>
+                            }
+                        </div>
+                    }
                     <div class="form-group">
                         <label for="Email">Email</label>
                         <input asp-for="Email" type="email" placeholder="Nhập Email" />
@@ -58,7 +67,7 @@
 
                 <div class="register-prompt">
                     <span>Bạn chưa có tài khoản?</span>
-                    <a href="/Auth/Register">Tạo tài khoản</a>
+                    <a href="/Auth/RegistOption">Tạo tài khoản</a>
                 </div>
             </div>
         </div>

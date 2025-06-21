@@ -23,6 +23,15 @@ namespace Lumine.MVCWebApp.FE.Controllers
         {
             try
             {
+                var token = Request.Cookies["TokenString"];
+                if (string.IsNullOrEmpty(token))
+                {
+                    TempData["Error"] = "Bạn chưa đăng nhập.";
+                    return RedirectToAction("Login", "Auth");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
                 var response = await _httpClient.GetAsync($"{_apiBaseUrl}/unapproved-artists?pageIndex={pageIndex}&pageSize={pageSize}");
                 response.EnsureSuccessStatusCode();
 
@@ -42,12 +51,19 @@ namespace Lumine.MVCWebApp.FE.Controllers
             }
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(Guid id)
         {
             try
             {
+                var token = Request.Cookies["TokenString"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized("Missing token");
+
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
                 var response = await _httpClient.PutAsync($"{_apiBaseUrl}/approve-artist/{id}", null);
 
                 if (response.IsSuccessStatusCode)
@@ -65,5 +81,6 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 return StatusCode(500, "Internal server error.");
             }
         }
+
     }
 }
