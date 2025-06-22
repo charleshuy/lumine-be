@@ -2,6 +2,7 @@
 @using Application.DTOs.ServiceDTO
 @using Application.Paggings
 @using Application.DTOs
+@using Domain.Entities
 @{
     ViewData["Title"] = "My Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -18,9 +19,14 @@
         <div class="row mt-4">
             <div class="col-md-4">
                 <div class="profile-img-container">
-                    <img src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-avatar.png") : Model.ProfilePicture)" alt="Profile Picture" class="img-fluid" />
+                    <img id="avatarPreview"
+                    src="@(string.IsNullOrEmpty(Model.ProfilePicture) ? Url.Content("~/img/default-avatar.png") : Model.ProfilePicture)"
+                    alt="Profile Picture"
+                    class="img-fluid rounded" />
                 </div>
-                <button type="button" class="btn btn-sm btn-light-pink w-100 mb-3">
+
+                <input type="file" id="avatarInput" accept="image/*" class="form-control mt-2" hidden />
+                <button type="button" class="btn btn-sm btn-light-pink w-100 mb-3" id="changeAvatarBtn">
                     <i class="bi bi-pencil-fill"></i> Thay đổi ảnh
                 </button>
             </div>
@@ -28,6 +34,7 @@
 
             <div class="col-md-8">
 
+                <!-- Nav bar -->
                 <ul class="nav nav-pills nav-custom mb-4" id="profileTabs">
                     <li class="nav-item">
                         <a class="nav-link active" href="#" data-tab="info">Thông tin tài khoản</a>
@@ -36,11 +43,15 @@
                     @if (Model.Roles.Any(r => r.Name == "User"))
                     {
                         <li class="nav-item">
-                            <a class="nav-link" href="#" data-tab="bookings">Lịch sử đặt lịch</a>
+                            <a class="nav-link" href="#" data-tab="customer-bookings">Lịch sử đặt lịch</a>
                         </li>
                     }
-                    else if (Model.Roles.Any(r => r.Name == "Artist"))
+
+                    @if (Model.Roles.Any(r => r.Name == "Artist"))
                     {
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-tab="artist-bookings">Lịch hẹn của tôi</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" data-tab="services">Quản lý dịch vụ</a>
                         </li>
@@ -50,7 +61,6 @@
                         <a class="nav-link" href="#">Đổi mật khẩu</a>
                     </li>
                 </ul>
-
 
                 <!-- Info Section -->
                 <div id="info-section">
@@ -97,13 +107,13 @@
                     </div>
                 </div>
 
-                <!-- Booking Section -->
-                <div id="bookings-section" class="d-none mt-4">
-                    @if (ViewBag.Bookings != null && ((PaginatedList<BookingDTO>)ViewBag.Bookings).Items.Any())
+                <!-- Customer Bookings Section -->
+                <div id="customer-bookings-section" class="d-none mt-4">
+                    @if (ViewBag.CustomerBookings != null && ((PaginatedList<BookingDTO>)ViewBag.CustomerBookings).Items.Any())
                     {
-                        var bookings = (PaginatedList<BookingDTO>)ViewBag.Bookings;
+                        var bookings = (PaginatedList<BookingDTO>)ViewBag.CustomerBookings;
                         <table class="table table-bordered table-striped">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th>Ngày đặt</th>
                                     <th>Thời gian</th>
@@ -127,41 +137,66 @@
                                 }
                             </tbody>
                         </table>
-                        @if (bookings.TotalPages > 1)
-                        {
-                            <nav>
-                                <ul class="pagination justify-content-center">
-                                    @if (bookings.HasPreviousPage)
-                                    {
-                                        <li class="page-item">
-                                            <a class="page-link" href="?bookingPage=@(bookings.PageNumber - 1)">«</a>
-                                        </li>
-                                    }
-
-                                    @for (int i = 1; i <= bookings.TotalPages; i++)
-                                    {
-                                        <li class="page-item @(i == bookings.PageNumber ? "active" : "")">
-                                            <a class="page-link" href="?bookingPage=@i">@i</a>
-                                        </li>
-                                    }
-
-                                    @if (bookings.HasNextPage)
-                                    {
-                                        <li class="page-item">
-                                            <a class="page-link" href="?bookingPage=@(bookings.PageNumber + 1)">»</a>
-                                        </li>
-                                    }
-                                </ul>
-                            </nav>
-                        }
-
-
                     }
                     else
                     {
                         <div class="alert alert-info">Bạn chưa có lịch hẹn nào.</div>
                     }
                 </div>
+
+                <!-- Artist Bookings Section -->
+                <div id="artist-bookings-section" class="d-none mt-4">
+                    @if (ViewBag.ArtistBookings != null && ((PaginatedList<BookingDTO>)ViewBag.ArtistBookings).Items.Any())
+                    {
+                        var bookings = (PaginatedList<BookingDTO>)ViewBag.ArtistBookings;
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ngày đặt</th>
+                                    <th>Khách hàng</th>
+                                    <th>Thời gian</th>
+                                    <th>Dịch vụ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var booking in bookings.Items)
+                                {
+                                    <tr data-id="@booking.Id">
+                                        <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@booking.Customer.Email</td>
+                                        <td>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
+                                        <td>@booking.Service?.ServiceName</td>
+                                        <td class="booking-status">@booking.Status</td>
+                                        <td>@booking.TotalPrice.ToString("C")</td>
+                                        @{
+                                            var statusEnum = Enum.TryParse<BookingStatus>(booking.Status, out var parsedStatus) ? parsedStatus : (BookingStatus?)null;
+                                        }
+                                        <td>
+                                            @if (statusEnum == BookingStatus.Pending)
+                                            {
+                                                <button class="btn btn-sm btn-success confirm-btn">Xác nhận</button>
+                                                <button class="btn btn-sm btn-danger cancel-btn">Hủy</button>
+                                            }
+                                            else if (statusEnum == BookingStatus.Confirmed)
+                                            {
+                                                <button class="btn btn-sm btn-secondary complete-btn">Hoàn thành</button>
+                                            }
+                                        </td>
+
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">Chưa có khách đặt lịch hẹn.</div>
+                    }
+                </div>
+
 
                 <!-- Services Section for Artist -->
                 <div id="services-section" class="d-none mt-4">
@@ -331,18 +366,22 @@
             });
         });
 
-        function switchTab(tab) {
+                function switchTab(tab) {
             document.querySelectorAll('#profileTabs .nav-link').forEach(t => {
                 t.classList.remove('active');
-                if (t.getAttribute('data-tab') === tab) t.classList.add('active');
+                if (t.getAttribute('data-tab') === tab) {
+                    t.classList.add('active');
+                }
             });
 
             document.getElementById('info-section')?.classList.add('d-none');
-            document.getElementById('bookings-section')?.classList.add('d-none');
+            document.getElementById('customer-bookings-section')?.classList.add('d-none');
+            document.getElementById('artist-bookings-section')?.classList.add('d-none');
             document.getElementById('services-section')?.classList.add('d-none');
 
             if (tab === 'info') document.getElementById('info-section')?.classList.remove('d-none');
-            if (tab === 'bookings') document.getElementById('bookings-section')?.classList.remove('d-none');
+            if (tab === 'customer-bookings') document.getElementById('customer-bookings-section')?.classList.remove('d-none');
+            if (tab === 'artist-bookings') document.getElementById('artist-bookings-section')?.classList.remove('d-none');
             if (tab === 'services') document.getElementById('services-section')?.classList.remove('d-none');
         }
 
@@ -350,6 +389,7 @@
             const savedTab = localStorage.getItem('activeProfileTab') || 'info';
             switchTab(savedTab);
         });
+
 
         // Edit service
         document.querySelectorAll('.edit-service-btn').forEach(button => {
@@ -469,5 +509,124 @@
             }
         });
     </script>
+
+    <script>
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+
+        changeAvatarBtn.addEventListener('click', () => {
+            avatarInput.click(); // Trigger file input
+        });
+
+        avatarInput.addEventListener('change', async function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            // Preview instantly
+            const reader = new FileReader();
+            reader.onload = () => {
+                avatarPreview.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('TokenString='))
+                ?.split('=')[1];
+
+            if (!token) {
+                alert("Vui lòng đăng nhập lại.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch(`${window.appConfig.apiBaseUrl}/auth/avatar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const err = await response.text();
+                    alert("Lỗi khi tải ảnh: " + err);
+                    return;
+                }
+
+                const result = await response.json();
+                avatarPreview.src = result.url; // Update to new avatar URL if needed
+
+                alert("Ảnh đại diện đã được cập nhật!");
+
+            } catch (err) {
+                console.error("Upload failed", err);
+                alert("Lỗi khi tải ảnh.");
+            }
+        });
+    </script>
+
+    
+    <script>
+        const apiBaseUrl = '@ViewBag.ApiBaseUrl' || '@(new Uri(Context.Request.Scheme + "://" + Context.Request.Host).ToString())/api';
+
+        document.addEventListener("DOMContentLoaded", () => {
+            function updateBookingStatus(bookingId, newStatus, row) {
+                fetch(`${apiBaseUrl}/booking/${bookingId}/confirm?status=${newStatus}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${getCookie("TokenString")}`
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Không thể cập nhật trạng thái.");
+                    return response.json();
+                })
+                .then(data => {
+                    row.querySelector(".booking-status").innerText = newStatus;
+                    alert("Cập nhật thành công!");
+                    location.reload(); // Optionally refresh to reflect changes
+                })
+                .catch(error => {
+                    alert("Lỗi: " + error.message);
+                });
+            }
+
+            function getCookie(name) {
+                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+                return match ? match[2] : null;
+            }
+
+            document.querySelectorAll(".confirm-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const row = this.closest("tr");
+                    const bookingId = row.dataset.id;
+                    updateBookingStatus(bookingId, "Confirmed", row);
+                });
+            });
+
+            document.querySelectorAll(".cancel-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const row = this.closest("tr");
+                    const bookingId = row.dataset.id;
+                    updateBookingStatus(bookingId, "Canceled", row);
+                });
+            });
+
+            document.querySelectorAll(".complete-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const row = this.closest("tr");
+                    const bookingId = row.dataset.id;
+                    updateBookingStatus(bookingId, "Completed", row);
+                });
+            });
+        });
+    </script>
+
+
 }
 

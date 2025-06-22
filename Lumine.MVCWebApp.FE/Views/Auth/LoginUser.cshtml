@@ -23,7 +23,14 @@
         <div class="right-login">
             <div class="login-form">
                 <h1>ĐĂNG NHẬP</h1>
-                <p class="subtitle">Quản lý tài khoản</p>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
 
                 <form asp-action="LoginUser" method="post" class="form-content">
                     @if (!ViewData.ModelState.IsValid)
