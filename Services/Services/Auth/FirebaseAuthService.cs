@@ -107,8 +107,17 @@ namespace Application.Services.Auth
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(signUpUrl, content);
 
+            var responseContent = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
+            {
+                if (responseContent.Contains("EMAIL_EXISTS"))
+                {
+                    throw new BaseException.BadRequestException("email_exists", "Email đã được sử dụng.");
+                }
+
                 throw new BaseException.BadRequestException("registration_failed", "Đăng ký không thành công. Vui lòng thử lại.");
+            }
 
             var responseData = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var idToken = responseData.RootElement.GetProperty("idToken").GetString();
@@ -159,8 +168,18 @@ namespace Application.Services.Auth
             var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(signUpUrl, content);
 
+            var responseContent = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
+            {
+                if (responseContent.Contains("EMAIL_EXISTS"))
+                {
+                    throw new BaseException.BadRequestException("email_exists", "Email đã được sử dụng.");
+                }
+
                 throw new BaseException.BadRequestException("registration_failed", "Đăng ký không thành công. Vui lòng thử lại.");
+            }
+
 
             var responseData = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var idToken = responseData.RootElement.GetProperty("idToken").GetString();

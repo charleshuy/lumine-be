@@ -197,8 +197,9 @@ namespace Application.Services
             {
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
                     throw new InvalidOperationException("Only pending or confirmed bookings can be canceled.");
-                if (booking.CustomerID != userId || booking.Service!.ArtistID != userId)
+                if (booking.CustomerID != userId && booking.Service!.ArtistID != userId)
                     throw new AuthenticationException("You are not authorized to cancel this booking.");
+
             }
 
             booking.Status = status;

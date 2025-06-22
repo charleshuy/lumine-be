@@ -7,14 +7,17 @@
 
 
 <div class="register-page">
-    <div class="logo-top-center">
-        <img src="~/img/logo01.png" alt="Logo" />
-    </div>
+    @* <div class="logo-top-center"> *@
+    @*     <img src="~/img/logo01.png" alt="Logo" /> *@
+    @* </div> *@
     <div class="quay-li">
         <a asp-action="LoginUser" class="QUAY-l-i">&lt; QUAY LẠI</a>
     </div>
 
     <form asp-action="Register" method="post" class="register-form" novalidate>
+        <!-- Display all model-level validation errors -->
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
         <button type="button" class="google-btn">
             <img src="~/img/google-icon.png" alt="Google icon" />
             <span>Đăng nhập bằng Google</span>
@@ -59,12 +62,13 @@
             @* You can use JavaScript or custom validation for matching password confirmation *@
         </div>
 
-        <div class="form-check">
-            <input type="checkbox" id="agreeTerms" required />
-            <label for="agreeTerms">
-                Tôi hiểu và đồng ý với Điều khoản dịch vụ của Lumine, bao gồm Thỏa thuận người dùng và Chính sách quyền riêng tư
-            </label>
-        </div>
+        @* <div class="form-check"> *@
+        @*     <input asp-for="AcceptTerms" class="form-check-input" /> *@
+        @*     <label asp-for="AcceptTerms" class="form-check-label"> *@
+        @*         Tôi hiểu và đồng ý với Điều khoản dịch vụ của Lumine, bao gồm Thỏa thuận người dùng và Chính sách quyền riêng tư *@
+        @*     </label> *@
+        @*     <span asp-validation-for="AcceptTerms" class="text-danger"></span> *@
+        @* </div> *@
 
         <button type="submit" class="submit-btn">Tạo tài khoản</button>
     </form>

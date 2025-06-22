@@ -159,6 +159,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 try
                 {
                     var errorDoc = JsonDocument.Parse(errorContent);
+
                     if (errorDoc.RootElement.TryGetProperty("errors", out var errorsElement))
                     {
                         foreach (var prop in errorsElement.EnumerateObject())
@@ -169,7 +170,7 @@ namespace Lumine.MVCWebApp.FE.Controllers
                             }
                         }
                     }
-                    else if (errorDoc.RootElement.TryGetProperty("message", out var msgElement))
+                    else if (errorDoc.RootElement.TryGetProperty("errorMessage", out var msgElement))
                     {
                         ModelState.AddModelError(string.Empty, msgElement.GetString() ?? "Registration failed.");
                     }
@@ -186,8 +187,11 @@ namespace Lumine.MVCWebApp.FE.Controllers
                 return View(request);
             }
 
-            ViewBag.Message = "Registration successful. Please verify your email before logging in.";
-            return View();
+            // ✅ Set success message
+            TempData["SuccessMessage"] = "Đăng ký thành công. Vui lòng xác minh email trước khi đăng nhập.";
+
+            // ✅ Redirect to LoginUser
+            return RedirectToAction("LoginUser", "Auth");
         }
 
         public async Task<IActionResult> Logout()
@@ -232,12 +236,41 @@ namespace Lumine.MVCWebApp.FE.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                // Handle error parsing as in normal Register method
+
+                try
+                {
+                    var errorDoc = JsonDocument.Parse(errorContent);
+
+                    if (errorDoc.RootElement.TryGetProperty("errors", out var errorsElement))
+                    {
+                        foreach (var prop in errorsElement.EnumerateObject())
+                        {
+                            foreach (var error in prop.Value.EnumerateArray())
+                            {
+                                ModelState.AddModelError(prop.Name, error.GetString() ?? "Đã xảy ra lỗi.");
+                            }
+                        }
+                    }
+                    else if (errorDoc.RootElement.TryGetProperty("errorMessage", out var msgElement))
+                    {
+                        ModelState.AddModelError(string.Empty, msgElement.GetString() ?? "Đăng ký thất bại.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Đăng ký thất bại. Vui lòng thử lại.");
+                    }
+                }
+                catch
+                {
+                    ModelState.AddModelError(string.Empty, "Đăng ký thất bại. Vui lòng thử lại.");
+                }
+
                 return View(request);
             }
 
-            ViewBag.Message = "Đăng ký thành công. Vui lòng xác minh email trước khi đăng nhập.";
-            return View();
+            // ✅ Redirect to LoginUser with success message
+            TempData["SuccessMessage"] = "Đăng ký thành công. Vui lòng xác minh email trước khi đăng nhập.";
+            return RedirectToAction("LoginUser", "Auth");
         }
 
         public IActionResult RegistOption()

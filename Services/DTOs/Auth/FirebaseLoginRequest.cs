@@ -37,6 +37,9 @@ namespace Application.DTOs.Auth
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).+$",
             ErrorMessage = "Password must have at least one lowercase letter, one uppercase letter, and one non-alphanumeric character.")]
         public string Password { get; set; } = null!;
-    }
 
+        //[Required(ErrorMessage = "Bạn phải đồng ý với điều khoản dịch vụ.")]
+        //[Display(Name = "Đồng ý điều khoản")]
+        //public bool? AcceptTerms { get; set; }
+    }
 }

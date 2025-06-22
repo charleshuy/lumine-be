@@ -30,27 +30,27 @@ namespace Lumine.MVCWebApp.FE.Controllers
         }
 
         public async Task<IActionResult> Index(int bookingPage = 1, int servicePage = 1)
-        {
-            try
-            {
-                var token = Request.Cookies["TokenString"];
-                if (string.IsNullOrEmpty(token))
-                    return RedirectToAction("Login", "Auth");
+{
+    try
+    {
+        var token = Request.Cookies["TokenString"];
+        if (string.IsNullOrEmpty(token))
+            return RedirectToAction("Login", "Auth");
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                // Get profile
-                var profileResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/auth/profile");
-                if (!profileResponse.IsSuccessStatusCode)
-                    return RedirectToAction("Login", "Auth");
+        // Get profile
+        var profileResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/auth/profile");
+        if (!profileResponse.IsSuccessStatusCode)
+            return RedirectToAction("Login", "Auth");
 
-                var profileJson = await profileResponse.Content.ReadAsStringAsync();
-                var profile = JsonConvert.DeserializeObject<ResponseUserDTO>(profileJson);
+        var profileJson = await profileResponse.Content.ReadAsStringAsync();
+        var profile = JsonConvert.DeserializeObject<ResponseUserDTO>(profileJson);
 
-                if (profile == null)
-                    return RedirectToAction("Login", "Auth");
+        if (profile == null)
+            return RedirectToAction("Login", "Auth");
 
-                var roles = profile.Roles.Select(r => r.Name).ToList();
+        var roles = profile.Roles.Select(r => r.Name).ToList();
 
                 if (roles.Contains("User"))
                 {
@@ -59,29 +59,41 @@ namespace Lumine.MVCWebApp.FE.Controllers
                     {
                         var bookingsJson = await bookingsResponse.Content.ReadAsStringAsync();
                         var bookings = JsonConvert.DeserializeObject<PaginatedList<BookingDTO>>(bookingsJson);
-                        ViewBag.Bookings = bookings;
+                        ViewBag.CustomerBookings = bookings;
                     }
                 }
-                else if (roles.Contains("Artist"))
+
+                if (roles.Contains("Artist"))
                 {
-                    var servicesResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Service/by-artist?pageIndex={servicePage}&pageSize=3");
+                    var servicesResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Service/by-artist?pageIndex={servicePage}&pageSize=5");
                     if (servicesResponse.IsSuccessStatusCode)
                     {
                         var servicesJson = await servicesResponse.Content.ReadAsStringAsync();
                         var services = JsonConvert.DeserializeObject<PaginatedList<ResponseServiceDTO>>(servicesJson);
                         ViewBag.Services = services;
                     }
+
+                    var artistBookingsResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Booking/artist?pageIndex={bookingPage}&pageSize=5");
+                    if (artistBookingsResponse.IsSuccessStatusCode)
+                    {
+                        var artistBookingsJson = await artistBookingsResponse.Content.ReadAsStringAsync();
+                        var artistBookings = JsonConvert.DeserializeObject<PaginatedList<BookingDTO>>(artistBookingsJson);
+                        ViewBag.ArtistBookings = artistBookings;
+                    }
                 }
 
+                ViewBag.ApiBaseUrl = _apiBaseUrl;
+
                 return View(profile);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to load profile.");
-                TempData["Error"] = "Không thể tải thông tin hồ sơ.";
-                return View();
-            }
-        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Failed to load profile.");
+        TempData["Error"] = "Không thể tải thông tin hồ sơ.";
+        return View();
+    }
+}
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
