@@ -246,7 +246,10 @@ namespace Application.Services
                 user.PhoneNumber = dto.PhoneNumber;
 
             if (!string.IsNullOrWhiteSpace(dto.Address))
-                user.Address = dto.Address; // ✅ Add this
+                user.Address = dto.Address; 
+
+            if (!string.IsNullOrWhiteSpace(dto.Description))
+                user.Description = dto.Description; 
 
             user.UpdatedAt = DateTime.UtcNow;
 

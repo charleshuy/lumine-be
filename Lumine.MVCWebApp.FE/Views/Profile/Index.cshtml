@@ -91,6 +91,19 @@
                             <input type="text" name="PhoneNumber" class="form-control edit-mode d-none" value="@Model.PhoneNumber" />
                         </div>
                         <div class="col-sm-6 mt-3">
+                            <label class="info-label">Mô tả:</label>
+
+                            <!-- View mode -->
+                            <div class="info-value view-mode description-text">@Model.Description</div>
+
+                            <!-- Edit mode -->
+                            <textarea name="Description" class="form-control edit-mode d-none" rows="4">@Model.Description</textarea>
+                        </div>
+
+
+
+
+                        <div class="col-sm-6 mt-3">
                             <label class="info-label">Ngày tạo:</label>
                             <div class="info-value">@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
                         </div>
