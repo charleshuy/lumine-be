@@ -13,7 +13,7 @@
 <div class="container mt-5">
     @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
     {
-    ("Lumine", Url.Action("Index", "Home")),
+    ("Lumine", Url.Action("Index", "UserHomePage")),
     ("Dịch vụ", null)
     })
 
@@ -35,12 +35,11 @@
                     <i class="fas fa-heart position-absolute top-0 end-0 m-3 text-pink"></i>
 
                     <div class="text-muted small">Thợ makeup | <span class="text-danger"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></span></div>
-                    <div class="fw-bold">@artist.PhoneNumber | @artist.FirstName @artist.LastName | @(DateTime.Now.Year - artist.CreatedAt.Year) tuổi</div>
+                    <div class="fw-bold">@artist.PhoneNumber | @artist.FirstName @artist.LastName</div>
                     <div class="text-muted small mb-3">@artist.Address</div>
 
                     <div class="d-grid gap-2 px-4">
-                        <a class="btn btn-primary rounded-pill" href="#">ĐẶT LỊCH NGAY</a>
-                        <a class="btn btn-light rounded-pill border" asp-action="Detail" asp-route-id="@artist.Id">XEM THÔNG TIN</a>
+                        <a class="btn btn-primary rounded-pill" asp-action="Detail" asp-route-id="@artist.Id">XEM THÔNG TIN</a>
                     </div>
                 </div>
             </div>

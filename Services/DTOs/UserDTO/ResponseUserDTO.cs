@@ -12,6 +12,7 @@ namespace Application.DTOs.UserDTO
         public string? ProfilePicture { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public string Description { get; set; } = "N/A";
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<RoleDTO>? Roles { get; set; }

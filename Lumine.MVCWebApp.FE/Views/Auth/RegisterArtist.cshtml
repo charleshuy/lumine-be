@@ -2,16 +2,19 @@
 @model Application.DTOs.Auth.RegisterEmailRequest
 
 @{
-    ViewData["Title"] = "Đăng ký Nghệ sĩ";
+    ViewData["Title"] = "Đăng ký Thợ";
 }
 
 <div class="register-page">
-    <div class="logo-top-center">
-        <img src="~/img/logo01.png" alt="Logo" />
-    </div>
+
 
     <div class="quay-li">
-        <a asp-action="LoginUser" class="QUAY-l-i">&lt; QUAY LẠI</a>
+        @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
+        {
+        ("Lumine", Url.Action("Index", "Home")),
+        ("Chọn", Url.Action("RegistOption", "Auth")),
+        ("Đăng ký Thợ", null)
+        })
     </div>
 
     <form asp-action="RegisterArtist" method="post" class="register-form" novalidate>
@@ -70,7 +73,7 @@
         @*     <span asp-validation-for="AcceptTerms" class="text-danger"></span> *@
         @* </div> *@
 
-        <button type="submit" class="submit-btn">Tạo tài khoản nghệ sĩ</button>
+        <button type="submit" class="submit-btn">Tạo tài khoản Thợ</button>
     </form>
 </div>
 

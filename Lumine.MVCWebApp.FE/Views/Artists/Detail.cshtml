@@ -12,12 +12,11 @@
 <div class="container py-5">
     @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
     {
-    ("Lumine", Url.Action("Index", "Home")),
+    ("Lumine", Url.Action("Index", "UserHomePage")),
     ("Dịch vụ", Url.Action("Index", "Artists")),
     ("Thông tin", null)
     })
 
-    <a href="@Url.Action("Index", "Artists")" class="text-decoration-none text-muted mb-4 d-inline-block fs-5">&lt; QUAY LẠI</a>
 
     <div class="row align-items-center">
         <div class="col-md-5">
@@ -33,18 +32,17 @@
                 <ul class="list-unstyled lh-lg artist-info">
                     <li><strong>Tên:</strong> @($"{Model.FirstName} {Model.LastName}")</li>
                     <li><strong>Mã thợ:</strong> @Model.Id.ToString().Substring(0, 6)</li>
-                    <li><strong>Tuổi:</strong> @(DateTime.Now.Year - Model.CreatedAt.Year)</li>
-                    <li><strong>Kinh nghiệm:</strong> 7 năm trong ngành makeup chuyên nghiệp</li>
+                    <li><strong>Mô tả:</strong> @Model.Description</li>
                     <li><strong>SĐT:</strong> <span class="text-danger fw-bold">@Model.PhoneNumber</span></li>
                 </ul>
 
-                <div class="mt-3">
+                @*<div class="mt-3">
                     <p class="fs-5"><strong>GIÁ BOOKING:</strong> <span class="fw-bold">300.000 VND</span></p>
                     <div class="d-flex gap-3">
                         <button class="btn btn-outline-dark rounded-pill px-4 fs-6">THÊM VÀO YÊU THÍCH</button>
                         <button class="btn btn-primary rounded-pill px-4 fs-6">ĐẶT LỊCH NGAY</button>
                     </div>
-                </div>
+                </div>*@
             </div>
         </div>
 

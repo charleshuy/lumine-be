@@ -96,3 +96,16 @@
         background-color: #d63384;
         color: white;
     }
+
+.description-text {
+    white-space: pre-wrap; /* Preserves newlines and wraps */
+    word-break: break-word; /* Breaks long words */
+    overflow-wrap: break-word; /* Modern browsers */
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden; /* Prevent scrollbars */
+    padding: 0.5rem 0;
+}
+
+

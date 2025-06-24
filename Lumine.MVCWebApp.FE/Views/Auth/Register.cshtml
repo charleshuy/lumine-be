@@ -11,7 +11,12 @@
     @*     <img src="~/img/logo01.png" alt="Logo" /> *@
     @* </div> *@
     <div class="quay-li">
-        <a asp-action="LoginUser" class="QUAY-l-i">&lt; QUAY LẠI</a>
+        @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
+        {
+        ("Lumine", Url.Action("Index", "Home")),
+        ("Chọn", Url.Action("RegistOption", "Auth")),
+        ("Đăng ký", null)
+        })
     </div>
 
     <form asp-action="Register" method="post" class="register-form" novalidate>

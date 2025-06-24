@@ -23,6 +23,31 @@
     object-fit: contain;
 }
 
+.hover-feature {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .hover-feature:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+.btn-black {
+    background-color: black;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-black:hover {
+        background-color: #333;
+        color: #fff;
+    }
+
+
 .membership-benefits {
     background-size: cover;
     background-position: center;
