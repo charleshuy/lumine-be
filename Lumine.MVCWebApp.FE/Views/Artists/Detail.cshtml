@@ -12,12 +12,11 @@
 <div class="container py-5">
     @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
     {
-    ("Lumine", Url.Action("Index", "Home")),
+    ("Lumine", Url.Action("Index", "UserHomePage")),
     ("Dịch vụ", Url.Action("Index", "Artists")),
     ("Thông tin", null)
     })
 
-    <a href="@Url.Action("Index", "Artists")" class="text-decoration-none text-muted mb-4 d-inline-block fs-5">&lt; QUAY LẠI</a>
 
     <div class="row align-items-center">
         <div class="col-md-5">

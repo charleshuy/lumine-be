@@ -22,25 +22,31 @@
     <div class="container">
         <div class="row g-5">
             <div class="col-md-4">
-                <div class="feature-card p-4 border rounded-4 shadow-sm h-100">
-                    <img src="~/img/client-icon.png" alt="Client" class="mb-3 feature-icon" />
-                    <h5 class="fw-bold">Khách Hàng</h5>
-                    <p class="text-muted">Tìm kiếm thợ makeup uy tín</p>
-                </div>
+                <a asp-controller="Auth" asp-action="RegistOption" class="text-decoration-none text-dark">
+                    <div class="feature-card p-4 border rounded-4 shadow-sm h-100 hover-feature">
+                        <img src="~/img/client-icon.png" alt="Client" class="mb-3 feature-icon" />
+                        <h5 class="fw-bold">Khách Hàng</h5>
+                        <p class="text-muted">Tìm kiếm thợ makeup uy tín</p>
+                    </div>
+                </a>
             </div>
             <div class="col-md-4">
-                <div class="feature-card p-4 border rounded-4 shadow-sm h-100">
-                    <img src="~/img/lumine-icon.png" alt="Lumine" class="mb-3 feature-icon" />
-                    <h5 class="fw-bold">Lumine</h5>
-                    <p class="text-muted">Hỗ trợ hai bên cùng lợi ích</p>
-                </div>
+                <a asp-controller="Auth" asp-action="RegistOption" class="text-decoration-none text-dark">
+                    <div class="feature-card p-4 border rounded-4 shadow-sm h-100 hover-feature">
+                        <img src="~/img/lumine-icon.png" alt="Lumine" class="mb-3 feature-icon" />
+                        <h5 class="fw-bold">Lumine</h5>
+                        <p class="text-muted">Hỗ trợ hai bên cùng lợi ích</p>
+                    </div>
+                </a>
             </div>
             <div class="col-md-4">
-                <div class="feature-card p-4 border rounded-4 shadow-sm h-100">
-                    <img src="~/img/artist-icon.png" alt="Artist" class="mb-3 feature-icon" />
-                    <h5 class="fw-bold">Đối Tác</h5>
-                    <p class="text-muted">Tìm khách hàng để makeup</p>
-                </div>
+                <a asp-controller="Auth" asp-action="RegistOption" class="text-decoration-none text-dark">
+                    <div class="feature-card p-4 border rounded-4 shadow-sm h-100 hover-feature">
+                        <img src="~/img/artist-icon.png" alt="Artist" class="mb-3 feature-icon" />
+                        <h5 class="fw-bold">Đối Tác</h5>
+                        <p class="text-muted">Tìm khách hàng để makeup</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
@@ -77,9 +83,15 @@
                     </ul>
                 </li>
             </ul>
+
+            <!-- Registration Button -->
+            <a asp-controller="Auth" asp-action="RegistOption" class="btn btn-black mt-4 d-block mx-auto" style="width: fit-content;">
+                ĐĂNG KÝ NGAY →
+            </a>
         </div>
     </div>
 </section>
+
 
 
 <!-- Customer Promo Section -->

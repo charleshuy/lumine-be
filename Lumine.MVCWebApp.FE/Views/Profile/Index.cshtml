@@ -10,8 +10,18 @@
 
 @await Html.PartialAsync("_UserSidebar")
 
+
+
 <form asp-action="Update" method="post" id="profileForm">
+    <div class="breadcrumb-wrapper mt-4">
+        @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)>
+        {
+        ("Lumine", Url.Action("Index", "Home")),
+        ("Hồ sơ", null)
+        })
+    </div>
     <div class="container mt-5 profile-container position-relative">
+        
         <div class="star-icon">★</div>
         <div class="profile-header">XIN CHÀO <span>“@Model.FirstName @Model.LastName”</span></div>
         @* <p class="profile-subtext">Profile của bạn có thể cập nhật lúc nào cũng được nhé</p> *@
@@ -163,10 +173,11 @@
                     {
                         var bookings = (PaginatedList<BookingDTO>)ViewBag.ArtistBookings;
                         <table class="table table-bordered table-striped">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
                                     <th>Ngày đặt</th>
                                     <th>Khách hàng</th>
+                                    <th>Số điện thoại</th>
                                     <th>Thời gian</th>
                                     <th>Dịch vụ</th>
                                     <th>Trạng thái</th>
@@ -177,16 +188,16 @@
                             <tbody>
                                 @foreach (var booking in bookings.Items)
                                 {
+                                    var statusEnum = Enum.TryParse<BookingStatus>(booking.Status, out var parsedStatus)
+                                    ? parsedStatus : (BookingStatus?)null;
                                     <tr data-id="@booking.Id">
                                         <td>@booking.BookingDate.ToString("dd/MM/yyyy")</td>
-                                        <td>@booking.Customer.Email</td>
-                                        <td>@booking.StartTime.ToString("HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
+                                        <td>@($"{booking.Customer.FirstName} {booking.Customer.LastName}")</td>
+                                        <td>@booking.Customer.PhoneNumber</td>
+                                        <td>@booking.StartTime.ToString("dd/MM/yyyy HH:mm") - @booking.EndTime.ToString("HH:mm")</td>
                                         <td>@booking.Service?.ServiceName</td>
                                         <td class="booking-status">@booking.Status</td>
                                         <td>@booking.TotalPrice.ToString("C")</td>
-                                        @{
-                                            var statusEnum = Enum.TryParse<BookingStatus>(booking.Status, out var parsedStatus) ? parsedStatus : (BookingStatus?)null;
-                                        }
                                         <td>
                                             @if (statusEnum == BookingStatus.Pending)
                                             {
@@ -198,11 +209,39 @@
                                                 <button class="btn btn-sm btn-secondary complete-btn">Hoàn thành</button>
                                             }
                                         </td>
-
                                     </tr>
                                 }
                             </tbody>
                         </table>
+
+                        @* Pagination *@
+                        @if (bookings.TotalPages > 1)
+                        {
+                            <nav>
+                                <ul class="pagination justify-content-center">
+                                    @if (bookings.HasPreviousPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?bookingPage=@(bookings.PageNumber - 1)">«</a>
+                                        </li>
+                                    }
+
+                                    @for (int i = 1; i <= bookings.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == bookings.PageNumber ? "active" : "")">
+                                            <a class="page-link" href="?bookingPage=@i">@i</a>
+                                        </li>
+                                    }
+
+                                    @if (bookings.HasNextPage)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="?bookingPage=@(bookings.PageNumber + 1)">»</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
+                        }
                     }
                     else
                     {

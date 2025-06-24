@@ -65,9 +65,19 @@ namespace Lumine.MVCWebApp.FE.Controllers
             Response.Cookies.Append("UserName", email);
             Response.Cookies.Append("Role", role ?? "");
 
-            return role?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true
-                ? RedirectToAction("Index", "Dashboard")
-                : RedirectToAction("Index", "Home");
+            if (role?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else if (role?.Equals("Artist", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return RedirectToAction("Profile", "Profile");
+            }
+            else // default to User
+            {
+                return RedirectToAction("Index", "UserHomePage");
+            }
+
         }
 
         public IActionResult LoginUser() => View();
@@ -133,9 +143,18 @@ namespace Lumine.MVCWebApp.FE.Controllers
             Response.Cookies.Append("UserName", email);
             Response.Cookies.Append("Role", role ?? "");
 
-            return role?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true
-                ? RedirectToAction("Index", "Accounts")
-                : RedirectToAction("Index", "Home");
+            if (role?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else if (role?.Equals("Artist", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return RedirectToAction("Index", "Profile");
+            }
+            else // default to User
+            {
+                return RedirectToAction("Index", "UserHomePage");
+            }
         }
 
 

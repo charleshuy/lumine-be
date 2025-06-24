@@ -19,12 +19,13 @@
 }
 
 .quay-li {
-    position: absolute;
-    width: 213px;
-    height: 45px;
-    top: 144px;
-    left: 95px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 20px;
+    align-self: flex-start;
+    font-size: 14px;
 }
+
 
 
 .register-form {
