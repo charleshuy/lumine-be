@@ -37,9 +37,9 @@ namespace Application.Services
         }
 
         public async Task<PaginatedList<ResponseUserDTO>> GetPaginatedUsers(
-            int pageIndex,
-            int pageSize,
-            UserSearchFilterDTO? filter = null)
+    int pageIndex,
+    int pageSize,
+    UserSearchFilterDTO? filter = null)
         {
             var query = _unitOfWork.GetRepository<ApplicationUser>().Entities
                 .Where(u => !u.IsDeleted);
@@ -58,37 +58,54 @@ namespace Application.Services
 
             query = query.OrderBy(u => u.Email);
 
-            var pagedUsers = await _unitOfWork.GetRepository<ApplicationUser>()
-                .GetPagging(query, pageIndex, pageSize);
+            // Fetch all users to apply role filter if needed
+            var users = await query.ToListAsync();
 
-            var filteredUsers = new List<ApplicationUser>();
-
-            foreach (var user in pagedUsers.Items)
+            if (filter != null && !string.IsNullOrWhiteSpace(filter.Role))
             {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (filter == null || string.IsNullOrWhiteSpace(filter.Role) ||
-                    roles.Any(r => r.Equals(filter.Role, StringComparison.OrdinalIgnoreCase)))
-                {
-                    filteredUsers.Add(user);
-                }
+                users = await FilterUsersByRoleAsync(users, filter.Role);
             }
 
+            var totalCount = users.Count;
 
-            var usersDto = _mapper.Map<List<ResponseUserDTO>>(filteredUsers);
+            // Paginate manually after role filtering
+            var paginatedUsers = users
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            for (int i = 0; i < filteredUsers.Count; i++)
+            var usersDto = _mapper.Map<List<ResponseUserDTO>>(paginatedUsers);
+
+            for (int i = 0; i < paginatedUsers.Count; i++)
             {
-                var roles = await _userManager.GetRolesAsync(filteredUsers[i]);
+                var roles = await _userManager.GetRolesAsync(paginatedUsers[i]);
                 usersDto[i].Roles = roles.Select(r => new RoleDTO { Name = r }).ToList();
             }
 
             return new PaginatedList<ResponseUserDTO>(
                 usersDto,
-                filteredUsers.Count,
+                totalCount,
                 pageIndex,
                 pageSize
             );
         }
+
+        private async Task<List<ApplicationUser>> FilterUsersByRoleAsync(List<ApplicationUser> users, string role)
+        {
+            var result = new List<ApplicationUser>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Any(r => r.Equals(role, StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.Add(user);
+                }
+            }
+
+            return result;
+        }
+
 
 
 

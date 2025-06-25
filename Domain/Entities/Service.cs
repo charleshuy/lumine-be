@@ -25,8 +25,8 @@ namespace Domain.Entities
 
     public enum ServiceStatus
     {
-        Available,
         Unavailable,
+        Available,
         Discontinued
     }
 }
