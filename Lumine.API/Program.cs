@@ -1,4 +1,5 @@
-﻿using Lumine.API;
+﻿using Infrastructure.Seeds;
+using Lumine.API;
 using Lumine.API.Middlewares;
 
 /// <summary>
@@ -31,6 +32,11 @@ public class Program
                                 .AllowAnyHeader());
         });
 
+        builder.Services.AddHttpClient("locations", client =>
+        {
+            client.BaseAddress = new Uri("https://provinces.open-api.vn/api/");
+        });
+
         var app = builder.Build();
 
         // Seed data
@@ -39,6 +45,13 @@ public class Program
         //    var services = scope.ServiceProvider;
         //    await Seed.Initialize(services);
         //}
+
+        // Seed dLocation data
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            await LocationSeed.SeedLocation(services);
+        }
 
 
 

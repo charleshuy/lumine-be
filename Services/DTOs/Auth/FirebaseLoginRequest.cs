@@ -38,6 +38,8 @@ namespace Application.DTOs.Auth
             ErrorMessage = "Password must have at least one lowercase letter, one uppercase letter, and one non-alphanumeric character.")]
         public string Password { get; set; } = null!;
 
+        public Guid? DistrictId { get; set; }
+
         //[Required(ErrorMessage = "Bạn phải đồng ý với điều khoản dịch vụ.")]
         //[Display(Name = "Đồng ý điều khoản")]
         //public bool? AcceptTerms { get; set; }

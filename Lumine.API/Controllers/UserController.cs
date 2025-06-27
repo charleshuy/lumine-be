@@ -48,6 +48,24 @@ namespace Lumine.API.Controllers
         }
 
 
+        /// <summary>  
+        /// Retrieves a paginated list of nearby artists.  
+        /// </summary>  
+        /// <param name="pageIndex">The index of the page to retrieve.</param>  
+        /// <param name="pageSize">The number of items per page.</param>  
+        /// <returns>A paginated list of nearby artists.</returns>  
+        [HttpGet("nearby-artists")]
+        [Authorize(AuthenticationSchemes = "Jwt")]
+        public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetNearbyArtists(
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = await _userService.GetNearbyArtistsAsync(pageIndex, pageSize);
+            return Ok(result);
+        }
+
+
+
 
         /// <summary>  
         /// Retrieves a full list of all users without pagination.  

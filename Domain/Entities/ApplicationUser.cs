@@ -16,5 +16,9 @@ namespace Domain.Entities
         public bool IsActive { get; set; } = true;
         public bool isApproved { get; set; } = true;
         public string? ProfilePicture { get; set; }
+
+        public Guid? DistrictId { get; set; }
+        public District? District { get; set; }
     }
+
 }

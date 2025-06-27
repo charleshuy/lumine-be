@@ -37,11 +37,11 @@ namespace Application.Services
         }
 
         public async Task<PaginatedList<ResponseUserDTO>> GetPaginatedUsers(
-    int pageIndex,
-    int pageSize,
-    UserSearchFilterDTO? filter = null)
+            int pageIndex,
+            int pageSize,
+            UserSearchFilterDTO? filter = null)
         {
-            var query = _unitOfWork.GetRepository<ApplicationUser>().Entities
+            var query = _unitOfWork.GetRepository<ApplicationUser>().Entities.Include(u => u.District).ThenInclude(d => d.Province)
                 .Where(u => !u.IsDeleted);
 
             if (filter != null)
@@ -54,6 +54,11 @@ namespace Application.Services
 
                 if (!string.IsNullOrWhiteSpace(filter.PhoneNumber))
                     query = query.Where(u => u.PhoneNumber!.Contains(filter.PhoneNumber));
+
+                if (filter.DistrictId.HasValue)
+                    query = query.Where(u => u.DistrictId == filter.DistrictId.Value);
+                if (filter.ProvinceId.HasValue)
+                    query = query.Where(u => u.District!.ProvinceId == filter.ProvinceId.Value);
             }
 
             query = query.OrderBy(u => u.Email);
@@ -90,6 +95,65 @@ namespace Application.Services
             );
         }
 
+        public async Task<PaginatedList<ResponseUserDTO>> GetNearbyArtistsAsync(int pageIndex, int pageSize)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (currentUserId == null)
+                throw new AuthenticationException("Vui lòng đăng nhập trước.");
+
+            var currentUser = await _unitOfWork.GetRepository<ApplicationUser>()
+                .Entities
+                .Include(u => u.District)
+                .ThenInclude(d => d.Province)
+                .FirstOrDefaultAsync(u => u.Id == currentUserId && !u.IsDeleted);
+
+            if (currentUser?.District == null || currentUser.District.Province == null)
+                throw new InvalidOperationException("Không tìm thấy khu vực của người dùng hiện tại.");
+
+            var districtId = currentUser.DistrictId;
+            var provinceId = currentUser.District.ProvinceId;
+
+            var usersQuery = _unitOfWork.GetRepository<ApplicationUser>().Entities
+                .Include(u => u.District)
+                .ThenInclude(d => d.Province)
+                .Where(u => !u.IsDeleted && u.isApproved && u.Id != currentUserId);
+
+            // Same district first
+            var nearbyUsers = await usersQuery
+                .Where(u => u.DistrictId == districtId)
+                .ToListAsync();
+
+            // Fallback to same province
+            if (!nearbyUsers.Any())
+            {
+                nearbyUsers = await usersQuery
+                    .Where(u => u.District!.ProvinceId == provinceId)
+                    .ToListAsync();
+            }
+
+            // ✅ Reuse your helper
+            var nearbyArtists = await FilterUsersByRoleAsync(nearbyUsers, "Artist");
+
+            var totalCount = nearbyArtists.Count;
+
+            var paged = nearbyArtists
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var dtoList = _mapper.Map<List<ResponseUserDTO>>(paged);
+
+            for (int i = 0; i < paged.Count; i++)
+            {
+                var roles = await _userManager.GetRolesAsync(paged[i]);
+                dtoList[i].Roles = roles.Select(r => new RoleDTO { Name = r }).ToList();
+            }
+
+            return new PaginatedList<ResponseUserDTO>(dtoList, totalCount, pageIndex, pageSize);
+        }
+
+
+
         private async Task<List<ApplicationUser>> FilterUsersByRoleAsync(List<ApplicationUser> users, string role)
         {
             var result = new List<ApplicationUser>();
@@ -111,7 +175,7 @@ namespace Application.Services
 
         public async Task<List<ResponseUserDTO>> GetAllUsersAsync()
         {
-            var users = _unitOfWork.GetRepository<ApplicationUser>().Entities
+            var users = _unitOfWork.GetRepository<ApplicationUser>().Entities.Include(u => u.District).ThenInclude(d => d.Province)
                 .Where(u => !u.IsDeleted)
                 .OrderBy(u => u.Email)
                 .ToList();
@@ -151,8 +215,14 @@ namespace Application.Services
 
         public async Task<ResponseUserDTO?> GetUserByIdAsync(Guid userId)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null || user.IsDeleted)
+            // Use EF Core with Includes instead of _userManager.FindByIdAsync
+            var user = await _unitOfWork.GetRepository<ApplicationUser>()
+                .NoTrackingEntities
+                .Include(u => u.District)
+                .ThenInclude(d => d.Province)
+                .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
+
+            if (user == null)
                 return null;
 
             var userDto = _mapper.Map<ResponseUserDTO>(user);
@@ -162,6 +232,7 @@ namespace Application.Services
 
             return userDto;
         }
+
 
         public Guid? GetCurrentUserId()
         {
@@ -180,16 +251,28 @@ namespace Application.Services
             if (string.IsNullOrEmpty(userIdClaim))
                 return null;
 
-            var user = await _userManager.FindByIdAsync(userIdClaim);
-            if (user == null || user.IsDeleted)
+            // Parse the userIdClaim (assuming it's a GUID)
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                return null;
+
+            // Use UoW + EF to fetch with includes
+            var user = await _unitOfWork.GetRepository<ApplicationUser>()
+                .NoTrackingEntities
+                .Include(u => u.District)
+                .ThenInclude(d => d.Province)
+                .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
+
+            if (user == null)
                 return null;
 
             var userDto = _mapper.Map<ResponseUserDTO>(user);
+
             var roles = await _userManager.GetRolesAsync(user);
             userDto.Roles = roles.Select(r => new RoleDTO { Name = r }).ToList();
 
             return userDto;
         }
+
         public async Task<bool> UpdateUserAsync(Guid userId, UpdateUserDTO dto)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -266,7 +349,10 @@ namespace Application.Services
                 user.Address = dto.Address; 
 
             if (!string.IsNullOrWhiteSpace(dto.Description))
-                user.Description = dto.Description; 
+                user.Description = dto.Description;
+
+            if (dto.DistrictId.HasValue)
+                user.DistrictId = dto.DistrictId.Value;
 
             user.UpdatedAt = DateTime.UtcNow;
 

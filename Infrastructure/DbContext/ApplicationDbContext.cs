@@ -17,6 +17,9 @@ namespace Infrastructure.Persistence
         public DbSet<Booking> Bookings { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<Province> Provinces { get; set; } = null!;
+        public DbSet<District> Districts { get; set; } = null!;
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -114,6 +117,20 @@ namespace Infrastructure.Persistence
                 .WithMany(b => b.Payments)
                 .HasForeignKey(p => p.BookingId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Province - District: One-to-Many
+            modelBuilder.Entity<District>()
+                .HasOne(d => d.Province)
+                .WithMany(p => p.Districts)
+                .HasForeignKey(d => d.ProvinceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // District - User: One-to-Many
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(u => u.District)
+                .WithMany(d => d.Users)
+                .HasForeignKey(u => u.DistrictId)
+                .OnDelete(DeleteBehavior.SetNull);
 
         }
     }

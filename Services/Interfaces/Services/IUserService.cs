@@ -11,6 +11,7 @@ namespace Application.Interfaces.Services
             int pageIndex,
             int pageSize,
             UserSearchFilterDTO? filter = null);
+        Task<PaginatedList<ResponseUserDTO>> GetNearbyArtistsAsync(int pageIndex, int pageSize);
         Task<List<ResponseUserDTO>> GetAllUsersAsync();
         Task<List<CreatedSummaryDTO>> GetUsersCreatedSummaryAsync();
         Task<ResponseUserDTO?> GetUserByIdAsync(Guid userId);
