@@ -135,6 +135,7 @@ namespace Application.Services.Auth
                 PhoneNumber = request.PhoneNumber,
                 Address = request.Address,
                 FirstName = request.FullName, // You can split into First/Last if needed
+                DistrictId = request.DistrictId,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
             };
@@ -197,6 +198,7 @@ namespace Application.Services.Auth
                 PhoneNumber = request.PhoneNumber,
                 Address = request.Address,
                 FirstName = request.FullName, // You can split into First/Last if needed
+                DistrictId = request.DistrictId,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
                 isApproved = false,

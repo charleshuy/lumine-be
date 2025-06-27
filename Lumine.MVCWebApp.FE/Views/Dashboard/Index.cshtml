@@ -11,19 +11,38 @@
 
     <div class="admin-content p-4" style="flex-grow: 1;">
         @Html.Partial("_sharedPic")
-        @await Html.PartialAsync("_AppOverview", Model) <!-- ✅ Now Model is not null -->
+        @await Html.PartialAsync("_AppOverview", Model)
         <canvas id="bookingChart" width="400" height="200"></canvas>
     </div>
 </div>
 
-
 @section Scripts {
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Day.js for date parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.7/dayjs.min.js"></script>
+
     <script>
         const rawData = @Html.Raw(chartData);
-        const labels = rawData.map(d => d.date);
-        const completed = rawData.map(d => d.completedCount);
-        const canceled = rawData.map(d => d.canceledCount);
+
+        const monthlyDataMap = {};
+
+        rawData.forEach(item => {
+            const date = dayjs(item.date);
+            const monthKey = date.format('YYYY-MM'); // e.g. "2025-06"
+            const monthLabel = date.format('MMM YYYY'); // e.g. "Jun 2025"
+
+            if (!monthlyDataMap[monthLabel]) {
+                monthlyDataMap[monthLabel] = { completedCount: 0, canceledCount: 0 };
+            }
+
+            monthlyDataMap[monthLabel].completedCount += item.completedCount;
+            monthlyDataMap[monthLabel].canceledCount += item.canceledCount;
+        });
+
+        const labels = Object.keys(monthlyDataMap);
+        const completed = labels.map(label => monthlyDataMap[label].completedCount);
+        const canceled = labels.map(label => monthlyDataMap[label].canceledCount);
 
         const ctx = document.getElementById('bookingChart').getContext('2d');
 
@@ -62,14 +81,14 @@
                     },
                     title: {
                         display: true,
-                        text: 'Tình trạng đơn đặt lịch theo ngày'
+                        text: 'Tình trạng đơn đặt lịch theo tháng'
                     }
                 },
                 scales: {
                     x: {
                         title: {
                             display: true,
-                            text: 'Ngày',
+                            text: 'Tháng',
                             color: '#666',
                             font: {
                                 size: 14
@@ -105,3 +124,4 @@
         });
     </script>
 }
+

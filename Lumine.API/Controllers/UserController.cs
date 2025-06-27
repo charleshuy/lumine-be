@@ -48,6 +48,24 @@ namespace Lumine.API.Controllers
         }
 
 
+        /// <summary>  
+        /// Retrieves a paginated list of nearby artists.  
+        /// </summary>  
+        /// <param name="pageIndex">The index of the page to retrieve.</param>  
+        /// <param name="pageSize">The number of items per page.</param>  
+        /// <returns>A paginated list of nearby artists.</returns>  
+        [HttpGet("nearby-artists")]
+        [Authorize(AuthenticationSchemes = "Jwt")]
+        public async Task<ActionResult<PaginatedList<ResponseUserDTO>>> GetNearbyArtists(
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var result = await _userService.GetNearbyArtistsAsync(pageIndex, pageSize);
+            return Ok(result);
+        }
+
+
+
 
         /// <summary>  
         /// Retrieves a full list of all users without pagination.  
@@ -155,6 +173,24 @@ namespace Lumine.API.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Allows a customer to rate an artist they have completed a booking with.
+        /// </summary>
+        /// <param name="artistId">The ID of the artist to rate.</param>
+        /// <param name="rating">The rating value (0.0 - 5.0).</param>
+        /// <returns>NoContent if successful.</returns>
+        [HttpPost("rate/{artistId:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "User")]
+        public async Task<IActionResult> RateArtist(Guid artistId, [FromQuery] double rating)
+        {
+            if (rating < 0 || rating > 5)
+                return BadRequest("Rating must be between 0 and 5.");
+
+            await _userService.RateArtistAsync(artistId, rating);
+            return NoContent();
+        }
+
 
     }
 }

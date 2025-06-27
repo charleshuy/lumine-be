@@ -16,5 +16,15 @@ namespace Domain.Entities
         public bool IsActive { get; set; } = true;
         public bool isApproved { get; set; } = true;
         public string? ProfilePicture { get; set; }
+
+
+        // ✅ Location
+        public Guid? DistrictId { get; set; }
+        public District? District { get; set; }
+
+        // ✅ Rating fields
+        public double Rating { get; set; } = 0.0;          // Average rating (0.0 - 5.0)
+        public int RatingCount { get; set; } = 0;          // Total number of ratings
     }
+
 }

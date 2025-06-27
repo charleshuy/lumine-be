@@ -12,10 +12,19 @@ namespace Application.DTOs.UserDTO
         public string? ProfilePicture { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public double Rating { get; set; } = 0.0;
         public string Description { get; set; } = "N/A";
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<RoleDTO>? Roles { get; set; }
+        public UserDistrictDto? District { get; set; }
+    }
+
+    public class UserDistrictDto
+    {
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public ProvinceDto? Province { get; set; }
     }
 
     public class CreatedSummaryDTO

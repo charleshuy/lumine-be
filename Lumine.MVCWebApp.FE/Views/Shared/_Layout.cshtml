@@ -63,7 +63,19 @@
                     ?? Context.Request.Cookies["UserName"]
                     ?? "Người dùng";
 
-                    <a class="nav-link" asp-controller="Artists" asp-action="Index">Đặt lịch</a>
+                    if (User.IsInRole("Admin"))
+                    {
+                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Quản lý</a>
+                    }
+                    else if (User.IsInRole("Artist"))
+                    {
+                        <a class="nav-link" asp-controller="Profile" asp-action="Index">Quản lý dịch vụ</a>
+                    }
+                    else
+                    {
+                        <a class="nav-link" asp-controller="Artists" asp-action="Index">Đặt lịch</a>
+                    }
+
                     <a class="nav-link" asp-controller="Profile" asp-action="Index">👤 @userName</a>
                     <a class="nav-link" asp-controller="Auth" asp-action="Logout">Đăng xuất</a>
                 }
@@ -73,6 +85,7 @@
                     <a class="nav-link" asp-controller="Auth" asp-action="LoginUser">Đăng nhập</a>
                 }
             </div>
+
 
 
         </nav>
