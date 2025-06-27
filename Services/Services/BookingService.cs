@@ -1,5 +1,4 @@
 ﻿using Application.DTOs;
-using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Interfaces.UOW;
 using Application.Paggings;
@@ -7,7 +6,6 @@ using AutoMapper;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Authentication;
-using static Domain.Base.BaseException;
 
 namespace Application.Services
 {

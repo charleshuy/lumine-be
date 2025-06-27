@@ -27,7 +27,7 @@ namespace Application.Services
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            IImageService imageService) // inject this
+            IImageService imageService) 
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -152,8 +152,6 @@ namespace Application.Services
             return new PaginatedList<ResponseUserDTO>(dtoList, totalCount, pageIndex, pageSize);
         }
 
-
-
         private async Task<List<ApplicationUser>> FilterUsersByRoleAsync(List<ApplicationUser> users, string role)
         {
             var result = new List<ApplicationUser>();
@@ -169,9 +167,6 @@ namespace Application.Services
 
             return result;
         }
-
-
-
 
         public async Task<List<ResponseUserDTO>> GetAllUsersAsync()
         {
@@ -211,8 +206,6 @@ namespace Application.Services
             return summary;
         }
 
-
-
         public async Task<ResponseUserDTO?> GetUserByIdAsync(Guid userId)
         {
             // Use EF Core with Includes instead of _userManager.FindByIdAsync
@@ -232,7 +225,6 @@ namespace Application.Services
 
             return userDto;
         }
-
 
         public Guid? GetCurrentUserId()
         {
@@ -325,6 +317,7 @@ namespace Application.Services
 
             return true;
         }
+
         public async Task<bool> UpdateCurrentUserProfileAsync(UpdateProfileDTO dto)
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -414,6 +407,7 @@ namespace Application.Services
 
             return new PaginatedList<ResponseUserDTO>(usersDto, totalCount, pageIndex, pageSize);
         }
+
         public async Task<bool> ApproveArtistAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -466,6 +460,63 @@ namespace Application.Services
                 throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
 
             return imageUrl;
+        }
+
+        public async Task RateArtistAsync(Guid artistId, double rating)
+        {
+            if (rating < 0 || rating > 5)
+                throw new ArgumentException("Rating must be between 0 and 5");
+
+            var customerId = GetCurrentUserId() ?? throw new AuthenticationException("Please log in");
+
+            // Check completed booking
+            var hasBooked = await _unitOfWork.GetRepository<Booking>().Entities
+                .AnyAsync(b =>
+                    b.Service!.ArtistID == artistId &&
+                    b.CustomerID == customerId &&
+                    b.Status == BookingStatus.Completed);
+
+            if (!hasBooked)
+                throw new InvalidOperationException("You can only rate artists you've booked services with.");
+
+            var userRatingRepo = _unitOfWork.GetRepository<UserRating>();
+
+            var existingRating = await userRatingRepo.Entities
+                .FirstOrDefaultAsync(r => r.ArtistId == artistId && r.CustomerId == customerId);
+
+            var artist = await _userManager.FindByIdAsync(artistId.ToString());
+            if (artist == null || artist.IsDeleted)
+                throw new Exception("Artist not found");
+
+            if (existingRating == null)
+            {
+                // First time rating
+                var newRatingEntry = new UserRating
+                {
+                    Id = Guid.NewGuid(),
+                    ArtistId = artistId,
+                    CustomerId = customerId,
+                    Rating = rating,
+                    RatedAt = DateTime.UtcNow
+                };
+
+                await userRatingRepo.InsertAsync(newRatingEntry);
+                artist.Rating = ((artist.Rating * artist.RatingCount) + rating) / (artist.RatingCount + 1);
+                artist.RatingCount += 1;
+            }
+            else
+            {
+                // Update existing rating
+                var totalRating = (artist.Rating * artist.RatingCount) - existingRating.Rating + rating;
+                existingRating.Rating = rating;
+                existingRating.RatedAt = DateTime.UtcNow;
+
+                artist.Rating = totalRating / artist.RatingCount;
+            }
+
+            artist.UpdatedAt = DateTime.UtcNow;
+            await _unitOfWork.SaveAsync();
+            await _userManager.UpdateAsync(artist);
         }
 
     }

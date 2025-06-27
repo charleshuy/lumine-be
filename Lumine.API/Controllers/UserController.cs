@@ -174,5 +174,23 @@ namespace Lumine.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Allows a customer to rate an artist they have completed a booking with.
+        /// </summary>
+        /// <param name="artistId">The ID of the artist to rate.</param>
+        /// <param name="rating">The rating value (0.0 - 5.0).</param>
+        /// <returns>NoContent if successful.</returns>
+        [HttpPost("rate/{artistId:guid}")]
+        [Authorize(AuthenticationSchemes = "Jwt", Roles = "User")]
+        public async Task<IActionResult> RateArtist(Guid artistId, [FromQuery] double rating)
+        {
+            if (rating < 0 || rating > 5)
+                return BadRequest("Rating must be between 0 and 5.");
+
+            await _userService.RateArtistAsync(artistId, rating);
+            return NoContent();
+        }
+
+
     }
 }

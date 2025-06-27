@@ -19,6 +19,7 @@ namespace Infrastructure.Persistence
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<Province> Provinces { get; set; } = null!;
         public DbSet<District> Districts { get; set; } = null!;
+        public DbSet<UserRating> UserRatings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -131,6 +132,27 @@ namespace Infrastructure.Persistence
                 .WithMany(d => d.Users)
                 .HasForeignKey(u => u.DistrictId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<UserRating>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+
+                entity.HasOne(r => r.Artist)
+                    .WithMany()
+                    .HasForeignKey(r => r.ArtistId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.Customer)
+                    .WithMany()
+                    .HasForeignKey(r => r.CustomerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(r => new { r.ArtistId, r.CustomerId })
+                    .IsUnique();
+
+                entity.Property(r => r.Rating)
+                    .HasColumnType("float");
+            });
 
         }
     }

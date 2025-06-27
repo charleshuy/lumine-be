@@ -23,6 +23,6 @@ namespace Application.Interfaces.Services
         Task<PaginatedList<ResponseUserDTO>> GetUnapprovedArtistsAsync(int pageIndex, int pageSize);
         Task<bool> ApproveArtistAsync(Guid userId);
         Task<string> UploadCurrentUserAvatarAsync(IFormFile avatarFile);
-
+        Task RateArtistAsync(Guid artistId, double rating);
     }
 }
