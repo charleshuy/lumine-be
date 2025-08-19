@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace Application.Services.Auth
 {
@@ -137,7 +138,7 @@ namespace Application.Services.Auth
                 FirstName = request.FullName, // You can split into First/Last if needed
                 DistrictId = request.DistrictId,
                 CreatedAt = DateTime.UtcNow,
-                IsActive = true,
+                IsActive = false,
             };
 
             var result = await _userManager.CreateAsync(newUser, request.Password);
@@ -200,7 +201,7 @@ namespace Application.Services.Auth
                 FirstName = request.FullName, // You can split into First/Last if needed
                 DistrictId = request.DistrictId,
                 CreatedAt = DateTime.UtcNow,
-                IsActive = true,
+                IsActive = false,
                 isApproved = false,
             };
 
@@ -221,31 +222,55 @@ namespace Application.Services.Auth
         private async Task SendEmailVerificationAsync(string idToken)
         {
             var apiKey = _configuration["Firebase:ApiKey"];
+            var redirectUrl = _configuration["Firebase:EmailVerificationRedirectUrl"];
             var verificationUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={apiKey}";
 
             var payload = new
             {
                 requestType = "VERIFY_EMAIL",
-                idToken = idToken
+                idToken = idToken,
+                continueUrl = redirectUrl // 👈 Use value from appsettings
             };
 
             var httpClient = new HttpClient();
-            var content = new StringContent(System.Text.Json.JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(verificationUrl, content);
 
             var responseBody = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = System.Text.Json.JsonDocument.Parse(responseBody);
+                var error = JsonDocument.Parse(responseBody);
                 var message = error.RootElement.GetProperty("error").GetProperty("message").GetString();
                 throw new BaseException.CoreException("email_verification_failed", $"Email verification failed: {message}");
             }
 
-            // Optional: log for success debug
-            Console.WriteLine("Email verification sent successfully");
+            Console.WriteLine("Email verification sent with custom URL");
         }
 
+        public async Task EnableUserAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                throw new BaseException.NotFoundException("user_not_found", "Không tìm thấy người dùng.");
+            }
+
+            if (user.IsActive)
+            {
+                return;
+            }
+
+            user.IsActive = true;
+            user.UpdatedAt = DateTime.UtcNow; // Optional: track update time
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new BaseException.BadRequestException("enable_user_failed", $"Không thể kích hoạt người dùng: {errors}");
+            }
+        }
 
         public async Task<string> LoginWithEmailPasswordFirebaseAsync(string email, string password, string? fcmToken = null)
         {

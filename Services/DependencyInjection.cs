@@ -1,7 +1,9 @@
 ﻿using Application.Interfaces.Auth;
 using Application.Interfaces.Services;
+using Application.Interfaces.Services.Payment;
 using Application.Services;
 using Application.Services.Auth;
+using Application.Services.Payment;
 using CloudinaryDotNet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +58,8 @@ namespace Application
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IAppOverviewService, AppOverviewService>();
             services.AddScoped<ILocationService, LocationService>();
+            services.AddScoped<ISubscriptionVNPayService, SubscriptionVNPayService>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
             return services;
         }
 

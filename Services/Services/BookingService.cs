@@ -4,8 +4,10 @@ using Application.Interfaces.UOW;
 using Application.Paggings;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Authentication;
+using static Domain.Base.BaseException;
 
 namespace Application.Services
 {
@@ -189,6 +191,16 @@ namespace Application.Services
 
                 if (booking.Service!.ArtistID != userId)
                     throw new AuthenticationException("You are not authorized to confirm this booking.");
+            }
+
+            if (status == BookingStatus.ConfirmedPayment)
+            {
+                if (booking.Status != BookingStatus.Pending)
+                    throw new InvalidOperationException("Only pending bookings can be confirmed.");
+
+                 var result = _userService.CheckAdminRole(userId.ToString())
+                    .GetAwaiter()
+                    .GetResult(); 
             }
 
             if (status == BookingStatus.Canceled)

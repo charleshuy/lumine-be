@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701060644_addSubcription")]
+    partial class addSubcription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -641,17 +644,12 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("SubscriptionTierId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("SubscriptionTierId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SubscriptionTierId");
-
-                    b.HasIndex("SubscriptionTierId1");
 
                     b.HasIndex("UserId");
 
@@ -893,10 +891,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.SubscriptionTier", null)
-                        .WithMany("UserSubscriptions")
-                        .HasForeignKey("SubscriptionTierId1");
-
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
                         .WithMany("Subscriptions")
                         .HasForeignKey("UserId")
@@ -994,11 +988,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ServiceType", b =>
                 {
                     b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("Domain.Entities.SubscriptionTier", b =>
-                {
-                    b.Navigation("UserSubscriptions");
                 });
 #pragma warning restore 612, 618
         }

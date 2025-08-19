@@ -25,6 +25,8 @@ namespace Domain.Entities
         // ✅ Rating fields
         public double Rating { get; set; } = 0.0;          // Average rating (0.0 - 5.0)
         public int RatingCount { get; set; } = 0;          // Total number of ratings
-    }
 
+        // 🔔 Premium Subscriptions
+        public ICollection<UserSubscription> Subscriptions { get; set; } = new List<UserSubscription>();
+    }
 }

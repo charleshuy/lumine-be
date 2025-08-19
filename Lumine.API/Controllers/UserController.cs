@@ -1,4 +1,5 @@
-﻿using Application.DTOs.SearchFilters;
+﻿using Application.DTOs;
+using Application.DTOs.SearchFilters;
 using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Paggings;
@@ -177,20 +178,47 @@ namespace Lumine.API.Controllers
         /// <summary>
         /// Allows a customer to rate an artist they have completed a booking with.
         /// </summary>
-        /// <param name="artistId">The ID of the artist to rate.</param>
-        /// <param name="rating">The rating value (0.0 - 5.0).</param>
+        /// <param name="dto">The rating request containing artist ID, rating value, and review.</param>
         /// <returns>NoContent if successful.</returns>
-        [HttpPost("rate/{artistId:guid}")]
+        [HttpPost("rate")]
         [Authorize(AuthenticationSchemes = "Jwt", Roles = "User")]
-        public async Task<IActionResult> RateArtist(Guid artistId, [FromQuery] double rating)
+        public async Task<IActionResult> RateArtist([FromBody] RatingRequestDTO dto)
         {
-            if (rating < 0 || rating > 5)
+            if (dto.Rating < 0 || dto.Rating > 5)
                 return BadRequest("Rating must be between 0 and 5.");
 
-            await _userService.RateArtistAsync(artistId, rating);
+            await _userService.RateArtistAsync(dto);
             return NoContent();
         }
 
+        /// <summary>
+        /// Retrieves paginated ratings for a specific artist.
+        /// </summary>
+        /// <param name="artistId">The ID of the artist.</param>
+        /// <param name="pageIndex">The page number (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>Paginated list of artist ratings.</returns>
+        [HttpGet("ratings/{artistId:guid}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetArtistRatings(Guid artistId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            if (pageIndex <= 0 || pageSize <= 0)
+                return BadRequest("Invalid pagination parameters.");
 
+            var result = await _userService.GetArtistRatingsAsync(artistId, pageIndex, pageSize);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves the number of users created each week from the first user created in each month from June onwards, grouped by role.
+        /// </summary>
+        /// <returns>Weekly user creation statistics grouped by role.</returns>
+        [HttpGet("weekly-created-from-june")]
+        //[Authorize(AuthenticationSchemes = "Jwt", Roles = "Admin")]
+        public async Task<IActionResult> GetWeeklyUserStatsFromJune()
+        {
+            var data = await _userService.GetWeeklyUserStatsFromJuneAsync();
+            return Ok(data);
+        }
     }
 }
