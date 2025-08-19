@@ -5,6 +5,8 @@ using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text;
 
 namespace Lumine.API.Controllers
 {
@@ -17,16 +19,19 @@ namespace Lumine.API.Controllers
     {
         private readonly IFirebaseAuthService _firebaseAuthService;
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
         /// <summary>  
         /// Initializes a new instance of the <see cref="AuthController"/> class.  
         /// </summary>  
         /// <param name="firebaseAuthService">Service for Firebase authentication.</param>  
-        /// <param name="userService">Service for user-related operations.</param>  
-        public AuthController(IFirebaseAuthService firebaseAuthService, IUserService userService)
+        /// <param name="userService">Service for user-related operations.</param>
+        /// <param name="configuration"></param>  
+        public AuthController(IFirebaseAuthService firebaseAuthService, IUserService userService, IConfiguration configuration)
         {
             _firebaseAuthService = firebaseAuthService;
             _userService = userService;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -157,5 +162,45 @@ namespace Lumine.API.Controllers
             var url = await _userService.UploadCurrentUserAvatarAsync(file);
             return Ok(new { Url = url });
         }
+
+        /// <summary>  
+        /// Verifies the user's email using the provided out-of-band code (oobCode).  
+        /// </summary>  
+        /// <param name="oobCode">The out-of-band code used for email verification.</param>  
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string oobCode)
+        {
+            if (string.IsNullOrEmpty(oobCode))
+                return BadRequest("Missing oobCode");
+
+            var apiKey = _configuration["Firebase:ApiKey"];
+            var frontendRedirectUrl = _configuration["Frontend:LoginRedirectUrl"];
+
+            if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(frontendRedirectUrl))
+                return BadRequest("Configuration is missing required values.");
+
+            var verifyUrl = $"https://identitytoolkit.googleapis.com/v1/accounts:update?key={apiKey}";
+
+            var payload = new { oobCode };
+
+            using var httpClient = new HttpClient();
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(verifyUrl, content);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = JsonDocument.Parse(body);
+                var message = error.RootElement.GetProperty("error").GetProperty("message").GetString();
+                return BadRequest($"Verification failed: {message}");
+            }
+
+            var email = JsonDocument.Parse(body).RootElement.GetProperty("email").GetString();
+            await _firebaseAuthService.EnableUserAsync(email!);
+
+            // ✅ Redirect to frontend login page  
+            return Redirect(frontendRedirectUrl!);
+        }
+
     }
 }

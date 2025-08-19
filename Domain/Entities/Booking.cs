@@ -27,6 +27,7 @@ namespace Domain.Entities
         Pending,
         Confirmed,
         Canceled,
-        Completed
+        Completed,
+        ConfirmedPayment,
     }
 }

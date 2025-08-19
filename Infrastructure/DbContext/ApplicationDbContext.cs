@@ -20,6 +20,9 @@ namespace Infrastructure.Persistence
         public DbSet<Province> Provinces { get; set; } = null!;
         public DbSet<District> Districts { get; set; } = null!;
         public DbSet<UserRating> UserRatings { get; set; }
+        public DbSet<SubscriptionTier> SubscriptionTiers { get; set; } = null!;
+        public DbSet<UserSubscription> UserSubscriptions { get; set; } = null!;
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -154,6 +157,26 @@ namespace Infrastructure.Persistence
                     .HasColumnType("float");
             });
 
+            modelBuilder.Entity<UserSubscription>(entity =>
+            {
+                entity.HasKey(us => us.Id);
+
+                entity.HasOne(us => us.User)
+                    .WithMany(u => u.Subscriptions)
+                    .HasForeignKey(us => us.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(us => us.SubscriptionTier)
+                    .WithMany()
+                    .HasForeignKey(us => us.SubscriptionTierId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(us => us.StartDate)
+                    .IsRequired();
+
+                entity.Property(us => us.EndDate)
+                    .IsRequired();
+            });
         }
     }
 }

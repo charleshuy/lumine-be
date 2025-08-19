@@ -1,4 +1,5 @@
-﻿using Application.DTOs.SearchFilters;
+﻿using Application.DTOs;
+using Application.DTOs.SearchFilters;
 using Application.DTOs.UserDTO;
 using Application.Interfaces.Services;
 using Application.Interfaces.UOW;
@@ -27,7 +28,7 @@ namespace Application.Services
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            IImageService imageService) 
+            IImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -339,7 +340,7 @@ namespace Application.Services
                 user.PhoneNumber = dto.PhoneNumber;
 
             if (!string.IsNullOrWhiteSpace(dto.Address))
-                user.Address = dto.Address; 
+                user.Address = dto.Address;
 
             if (!string.IsNullOrWhiteSpace(dto.Description))
                 user.Description = dto.Description;
@@ -432,6 +433,18 @@ namespace Application.Services
             return true;
         }
 
+        public async Task<bool> CheckAdminRole(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null || user.IsDeleted)
+                throw new NotFoundException("user_not_found", "Người dùng không tồn tại.");
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains("Admin"))
+                return true;
+            else
+                throw new BadRequestException("not_admin", "Người dùng không phải là Admin.");
+        }
+
         public async Task<string> UploadCurrentUserAvatarAsync(IFormFile avatarFile)
         {
             var userId = GetCurrentUserId();
@@ -462,17 +475,17 @@ namespace Application.Services
             return imageUrl;
         }
 
-        public async Task RateArtistAsync(Guid artistId, double rating)
+        public async Task RateArtistAsync(RatingRequestDTO dto)
         {
-            if (rating < 0 || rating > 5)
+            if (dto.Rating < 0 || dto.Rating > 5)
                 throw new ArgumentException("Rating must be between 0 and 5");
 
             var customerId = GetCurrentUserId() ?? throw new AuthenticationException("Please log in");
 
-            // Check completed booking
+            // Check if the customer has completed a booking with this artist
             var hasBooked = await _unitOfWork.GetRepository<Booking>().Entities
                 .AnyAsync(b =>
-                    b.Service!.ArtistID == artistId &&
+                    b.Service!.ArtistID == dto.ArtistId &&
                     b.CustomerID == customerId &&
                     b.Status == BookingStatus.Completed);
 
@@ -482,9 +495,9 @@ namespace Application.Services
             var userRatingRepo = _unitOfWork.GetRepository<UserRating>();
 
             var existingRating = await userRatingRepo.Entities
-                .FirstOrDefaultAsync(r => r.ArtistId == artistId && r.CustomerId == customerId);
+                .FirstOrDefaultAsync(r => r.ArtistId == dto.ArtistId && r.CustomerId == customerId);
 
-            var artist = await _userManager.FindByIdAsync(artistId.ToString());
+            var artist = await _userManager.FindByIdAsync(dto.ArtistId.ToString());
             if (artist == null || artist.IsDeleted)
                 throw new Exception("Artist not found");
 
@@ -494,29 +507,115 @@ namespace Application.Services
                 var newRatingEntry = new UserRating
                 {
                     Id = Guid.NewGuid(),
-                    ArtistId = artistId,
+                    ArtistId = dto.ArtistId,
                     CustomerId = customerId,
-                    Rating = rating,
+                    Rating = dto.Rating,
+                    Review = dto.Review,
                     RatedAt = DateTime.UtcNow
                 };
 
                 await userRatingRepo.InsertAsync(newRatingEntry);
-                artist.Rating = ((artist.Rating * artist.RatingCount) + rating) / (artist.RatingCount + 1);
+
+                artist.Rating = ((artist.Rating * artist.RatingCount) + dto.Rating) / (artist.RatingCount + 1);
                 artist.RatingCount += 1;
             }
             else
             {
                 // Update existing rating
-                var totalRating = (artist.Rating * artist.RatingCount) - existingRating.Rating + rating;
-                existingRating.Rating = rating;
+                var totalRating = (artist.Rating * artist.RatingCount) - existingRating.Rating + dto.Rating;
+
+                existingRating.Rating = dto.Rating;
+                existingRating.Review = dto.Review;
                 existingRating.RatedAt = DateTime.UtcNow;
 
                 artist.Rating = totalRating / artist.RatingCount;
             }
 
             artist.UpdatedAt = DateTime.UtcNow;
+
             await _unitOfWork.SaveAsync();
             await _userManager.UpdateAsync(artist);
+        }
+
+        public async Task<PaginatedList<RatingDTO>> GetArtistRatingsAsync(Guid artistId, int pageIndex, int pageSize)
+        {
+            var query = _unitOfWork.GetRepository<UserRating>().Entities
+                .Where(r => r.ArtistId == artistId)
+                .OrderByDescending(r => r.RatedAt);
+
+            var totalCount = await query.CountAsync();
+
+            var ratings = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => new RatingDTO
+                {
+                    Id = r.Id,
+                    ArtistId = r.ArtistId,
+                    CustomerId = r.CustomerId,
+                    Review = r.Review,
+                    Rating = r.Rating,
+                    RatedAt = r.RatedAt
+                })
+                .ToListAsync();
+
+            return new PaginatedList<RatingDTO>(ratings, totalCount, pageIndex, pageSize);
+        }
+
+
+        public async Task<IEnumerable<UserWeeklyStatsDto>> GetWeeklyUserStatsFromJuneAsync()
+        {
+            var query = from user in _userManager.Users
+                        where user.CreatedAt.Month >= 6 && user.CreatedAt.Year == DateTime.UtcNow.Year
+                        select new
+                        {
+                            user.Id,
+                            user.CreatedAt
+                        };
+
+            var userList = await query.ToListAsync();
+
+            // Get roles in bulk
+            var result = new List<UserWeeklyStatsDto>();
+            foreach (var user in userList)
+            {
+                var roles = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(user.Id.ToString()));
+
+                foreach (var role in roles)
+                {
+                    var year = user.CreatedAt.Year;
+                    var month = user.CreatedAt.Month;
+                    var weekNumber = System.Globalization.CultureInfo.InvariantCulture
+                                     .Calendar.GetWeekOfYear(user.CreatedAt,
+                                                              System.Globalization.CalendarWeekRule.FirstFourDayWeek,
+                                                              DayOfWeek.Monday);
+
+                    result.Add(new UserWeeklyStatsDto
+                    {
+                        Year = year,
+                        Month = month,
+                        WeekNumber = weekNumber,
+                        RoleName = role,
+                        UserCount = 1
+                    });
+                }
+            }
+
+            // Group and sum counts
+            return result
+                .GroupBy(x => new { x.Year, x.Month, x.WeekNumber, x.RoleName })
+                .Select(g => new UserWeeklyStatsDto
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    WeekNumber = g.Key.WeekNumber,
+                    RoleName = g.Key.RoleName,
+                    UserCount = g.Count()
+                })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .ThenBy(x => x.WeekNumber)
+                .ToList();
         }
 
     }

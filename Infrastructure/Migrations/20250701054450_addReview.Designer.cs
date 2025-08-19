@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701054450_addReview")]
+    partial class addReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -569,31 +572,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("ServiceTypes");
                 });
 
-            modelBuilder.Entity("Domain.Entities.SubscriptionTier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("DurationInDays")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SubscriptionTiers");
-                });
-
             modelBuilder.Entity("Domain.Entities.UserRating", b =>
                 {
                     b.Property<Guid>("Id")
@@ -624,38 +602,6 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("UserRatings");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserSubscription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("SubscriptionTierId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("SubscriptionTierId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubscriptionTierId");
-
-                    b.HasIndex("SubscriptionTierId1");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserSubscriptions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -885,29 +831,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Domain.Entities.UserSubscription", b =>
-                {
-                    b.HasOne("Domain.Entities.SubscriptionTier", "SubscriptionTier")
-                        .WithMany()
-                        .HasForeignKey("SubscriptionTierId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.SubscriptionTier", null)
-                        .WithMany("UserSubscriptions")
-                        .HasForeignKey("SubscriptionTierId1");
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "User")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SubscriptionTier");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationRole", null)
@@ -959,11 +882,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
-                {
-                    b.Navigation("Subscriptions");
-                });
-
             modelBuilder.Entity("Domain.Entities.Booking", b =>
                 {
                     b.Navigation("Payments");
@@ -994,11 +912,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.ServiceType", b =>
                 {
                     b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("Domain.Entities.SubscriptionTier", b =>
-                {
-                    b.Navigation("UserSubscriptions");
                 });
 #pragma warning restore 612, 618
         }

@@ -15,11 +15,14 @@ namespace Application.MappingProfiles
 
             CreateMap<ApplicationUser, CustomerDTO>();
 
-            // Nested mapping
+            // location mapping
             CreateMap<District, UserDistrictDto>()
                 .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Province));
 
             CreateMap<Province, ProvinceDto>();
+
+            // Mapping UserRating -> RatingDTO
+            CreateMap<UserRating, RatingDTO>().ReverseMap();
         }
     }
 

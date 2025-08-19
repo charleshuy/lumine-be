@@ -1,4 +1,5 @@
-﻿using Application.DTOs.SearchFilters;
+﻿using Application.DTOs;
+using Application.DTOs.SearchFilters;
 using Application.DTOs.UserDTO;
 using Application.Paggings;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,9 @@ namespace Application.Interfaces.Services
         Task<PaginatedList<ResponseUserDTO>> GetUnapprovedArtistsAsync(int pageIndex, int pageSize);
         Task<bool> ApproveArtistAsync(Guid userId);
         Task<string> UploadCurrentUserAvatarAsync(IFormFile avatarFile);
-        Task RateArtistAsync(Guid artistId, double rating);
+        Task RateArtistAsync(RatingRequestDTO dto);
+        Task<PaginatedList<RatingDTO>> GetArtistRatingsAsync(Guid artistId, int pageIndex, int pageSize);
+        Task<bool> CheckAdminRole(string userId);
+        Task<IEnumerable<UserWeeklyStatsDto>> GetWeeklyUserStatsFromJuneAsync();
     }
 }

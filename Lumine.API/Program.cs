@@ -1,4 +1,5 @@
-﻿using Infrastructure.Seeds;
+﻿using Application.DTOs;
+using Infrastructure.Seeds;
 using Lumine.API;
 using Lumine.API.Middlewares;
 
@@ -24,6 +25,8 @@ public class Program
         // Add custom services
         builder.Services.AddConfig(builder.Configuration);
 
+        builder.Services.Configure<VNPaySettings>(builder.Configuration.GetSection("VNPaySettings"));
+
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("AllowAll",
@@ -47,11 +50,11 @@ public class Program
         //}
 
         // Seed dLocation data
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            await LocationSeed.SeedLocation(services);
-        }
+        //using (var scope = app.Services.CreateScope())
+        //{
+        //    var services = scope.ServiceProvider;
+        //    await LocationSeed.SeedLocation(services);
+        //}
 
 
 
